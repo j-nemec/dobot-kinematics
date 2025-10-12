@@ -53,3 +53,14 @@ dkms.conf
 
 # debug information files
 *.dwo
+# macOS & editor extras
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~
+*.bak
+
+# Project data
+data/*.out
+*.log
