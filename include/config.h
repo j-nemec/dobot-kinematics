@@ -3,9 +3,20 @@
 
 /* Hodnoty získány z dokumentace: Dobot Magician User Guide v2.0 */
 
+/*
+    Bude fajn používat definici pro konkrétní OS - kvůli otevírání souborů atd.
+    #ifdef _WIN32
+        // Windows-specific code
+    #else
+        // Unix/Linux-specific code
+    #endif 
+*/
+
 /* Geometrie */
-#define L1 135.0   /* mm */
-#define L2 147.0   /* mm */
+#define EFFECTOR_OFFSET_X  61.0     /* mm */
+#define EFFECTOR_OFFSET_Z  70.0     /* mm */
+#define L1 135.0                    /* mm */
+#define L2 147.0                    /* mm */
 
 /* Výška osy J1 nad podložkou (Z) */
 #define BASE_Z 138.0  /* mm */
@@ -13,15 +24,14 @@
 #define J1_MIN_DEG   (-90.0)
 #define J1_MAX_DEG   (+90.0)
 /* J2 - rameno L1 */
-#define J2_MIN_DEG     (0.0)
+#define J2_MIN_DEG     (-5.0)
 #define J2_MAX_DEG    (+85.0)
 /* J3 - rameno L2 */
 #define J3_MIN_DEG   (-10.0)
-#define J3_MAX_DEG   (+90.0)
+#define J3_MAX_DEG   (90.0)
 /* J4 - rotace nástroje */
 #define J4_MIN_DEG   (-90.0)
 #define J4_MAX_DEG   (+90.0)
-
 /* Tolerance a dosah */
 #define EPS_POS_MM   (1e-2) // Poloha 0.01 mm
 #define EPS_ANG_RAD  (1e-6) // Úhel cca 0.000057°
