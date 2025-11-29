@@ -18,6 +18,14 @@
 #define L1 135.0                    /* mm */
 #define L2 147.0                    /* mm */
 
+/* Pracovní prostor specifikovaný dokumentací robota */
+#define WORKSPACE_X_MIN_MM  0.0     /* mm */
+#define WORKSPACE_X_MAX_MM  250.0   /* mm */
+#define WORKSPACE_Y_MIN_MM -125.0   /* mm */
+#define WORKSPACE_Y_MAX_MM  125.0   /* mm */
+#define WORKSPACE_Z_MIN_MM  0.0     /* mm */
+#define WORKSPACE_Z_MAX_MM  250.0   /* mm */
+
 /* Výška osy J1 nad podložkou (Z) */
 #define BASE_Z 138.0  /* mm */
 /* J1 - rotace základny 180° */
