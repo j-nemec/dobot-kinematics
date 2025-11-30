@@ -46,7 +46,7 @@ int main() {
     */
     printf("\nForward kinematics test:\n");
     joints.J1_deg = 0; // Základna rovně
-    joints.J2_deg = 20; // Rameno 1
+    joints.J2_deg = 21; // Rameno 1
     joints.J3_deg = 0; // Rameno 2
    
     switch(KForward(&joints, &position))  {
@@ -71,7 +71,9 @@ int main() {
             printf("Neznamy problem!\n");
             break;
     }
+
     t_textcolor(YELLOW);
+    fflush(stdout);
     t_keypress_wait();
     t_clrscr();
     t_hide_cursor();

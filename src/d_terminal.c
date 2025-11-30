@@ -1,5 +1,5 @@
 /* 
- *  =================    d_terminal.c   =================
+ * =================    d_terminal.c   =================
  * Implementace funkcí pro práci s terminálem (ANSI kódy)
  * https://cs.wikipedia.org/wiki/ANSI_escape_kód
  * 
@@ -91,7 +91,7 @@ void t_gotoxy(int x, int y) {
     if (x < 1) x = 1;
     if (y < 1) y = 1;
     printf("\x1b[%d;%dH", y, x);
-    fflush(stdout);
+    fflush(stdout); // Okamžitý flusanec - vyprázdnění bufferu
 }
 
 /* textcolor */
@@ -111,7 +111,7 @@ void t_reset_color(void) {
 }
 
 void t_hide_cursor(void) { // schování kurzoru
-    printf("\x1b[?25l");
+    printf("\x1b[?25l"); 
     fflush(stdout);
 }
 

@@ -1,4 +1,5 @@
 /*
+ * ======================== kinematics.c =========================
  * Implementace kinematiky pro 2DOF robotické rameno Dobot.
  * Autor: Josef Němec
  * Datum: 2025-09-15

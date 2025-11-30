@@ -1,7 +1,11 @@
+/* 
+ * ======================== config.h =========================
+ * Konfigurační soubor s parametry robota Dobot Magician 
+ * Hodnoty získány z dokumentace: Dobot Magician User Guide v2.0 
+ */
+
 #ifndef CONFIG_H
 #define CONFIG_H
-
-/* Hodnoty získány z dokumentace: Dobot Magician User Guide v2.0 */
 
 /* Geometrie */
 #define EFFECTOR_OFFSET_X  61.0     /* mm */

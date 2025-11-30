@@ -10,7 +10,7 @@
 #define DR_CANVAS_H 30
 
 /* Měřítko: kolik mm odpovídá jednomu pixelu */
-#define DR_MM_PER_PIXEL 10.0   /* 10 mm = 1 pixel, klidně změň */
+#define DR_MM_PER_PIXEL 8.0   /* 10 mm = 1 pixel, klidně změň */
 
 /* Jeden bod v pixelové mřížce */
 typedef struct {

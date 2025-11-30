@@ -1,12 +1,10 @@
-/* d_robot_canvas.c 
- * 
+/*  
+ * ========================= d_robot_canvas.c ========================= 
  *  Implementace kreslení robota na textové plátno v terminálu.
- * 
  *  Autor: Josef Němec
  *  Datum: 2025-10-05
  * 
  *  Popis:
- * 
  *  Tento modul poskytuje funkce pro kreslení jednoduchého 2D
  *  modelu robota na textové plátno v terminálu pomocí ASCII
  *  znaků a barev. Kreslení probíhá na virtuální canvas (dvourozměrné pole),
@@ -46,11 +44,11 @@ static D_Cell dr_canvas[DR_CANVAS_H][DR_CANVAS_W];
 
 /* Převod délky v mm na pixely dle měřítka */
 int d_mm_to_px(double mm) {
-    return (int)lround(mm / DR_MM_PER_PIXEL); // zaokrouhlení na nejbližší pixel
+    return (int)lround(mm / DR_MM_PER_PIXEL); // zaokrouhlení na nejbližší pixel (původne long, stačí int, tak přetypováno)
 }
 
 /* Vymazání plátna */
-void d_canvas_clear(void) { // Vyplní plátno mezerami ve stylu 90. let :D
+void d_canvas_clear(void) { // Vyplní plátno mezerami ve stylu clrscr :D
     for (int y = 0; y < DR_CANVAS_H; ++y) {
         for (int x = 0; x < DR_CANVAS_W; ++x) {
             dr_canvas[y][x].ch    = ' ';
@@ -69,24 +67,27 @@ void d_canvas_set_pixel(int x, int y, char ch, t_color color) {
 
 /* Bresenhamova úsečka v pixelové mřížce (s barvou) */
 void d_canvas_draw_line(int x0, int y0, int x1, int y1, char ch, t_color color) {
-    int dx = abs(x1 - x0);
-    int sx = (x0 < x1) ? 1 : -1;
-    int dy = -abs(y1 - y0);
-    int sy = (y0 < y1) ? 1 : -1;
-    int err = dx + dy;
+    int dx = abs(x1 - x0); // rozdíl v x
+    int sx = (x0 < x1) ? 1 : -1; // směrový krok v x (kladný nebo záporný) ternární operátory jsou malý zázrak :)
+    int dy = -abs(y1 - y0); // záporná hodnota pro y (protože y roste dolů)
+    int sy = (y0 < y1) ? 1 : -1; // směrový krok v y (kladný nebo záporný)
+    int err = dx + dy; // počáteční chyba (= dx - abs(dy))
 
-    while (1) {
-        d_canvas_set_pixel(x0, y0, ch, color);
-        if (x0 == x1 && y0 == y1) break;
-        int e2 = 2 * err;
-        if (e2 >= dy) { err += dy; x0 += sx; }
-        if (e2 <= dx) { err += dx; y0 += sy; }
+    while (1) { 
+        // nekonečná smyčka, ukončená breakem - někdy to může být přehlednější než složité podmínky ve while a zároveň
+        // může být opravdovým peklem, pokud zapomenete break :D
+
+        d_canvas_set_pixel(x0, y0, ch, color); // nastavit pixel na aktuální pozici (x0, y0)
+        if (x0 == x1 && y0 == y1) break; // pokud jsme dosáhli cílového bodu, ukončit smyčku
+        int e2 = 2 * err; // dvojnásobek chyby
+        if (e2 >= dy) { err += dy; x0 += sx; } // posun v x směru
+        if (e2 <= dx) { err += dx; y0 += sy; } // posun v y směru
     }
 }
 
 /* Vypsání plátna na obrazovku */
 void d_canvas_render(void) {
-    t_gotoxy(1, 1);  /* začneme levo nahoře */
+    t_gotoxy(1, 1);  // Začátek vlevo nahoře - znalci pascalu vědí proč :D
 
     t_color last_color = COLOR_DEFAULT;
 
@@ -110,14 +111,13 @@ void d_canvas_render(void) {
    - canvas: x doprava, y dolů
    - úhly: 0° = doprava, 90° = nahoru
 */
-void d_robot_compute_points(int base_x,
-                            int base_y,
-                            int L1_px,
-                            int L2_px,
-                            double shoulder_deg,
-                            double elbow_deg,
-                            D_RobotPoints *out)
-{
+
+/* Máme sice knihovn kinematics.h, ale tato funkce je pro vykreslování a nezávislá na funkci KForward/KInverse, 
+ * aby nebylo třeba ji přepisovat pro výpočty souřadnic kloubů robota, protože Canvas má rostoucí Y dolů.
+ * Logicky - je to pole znaků a indexuje od 0,0 v levém horním rohu.
+ */
+
+void d_robot_compute_points(int base_x, int base_y, int L1_px, int L2_px, double shoulder_deg, double elbow_deg, D_RobotPoints *out) {
     D_RobotPoints result;
     result.base.x = base_x;
     result.base.y = base_y;
@@ -131,19 +131,19 @@ void d_robot_compute_points(int base_x,
     */
 
     /* Konec prvního ramene (joint) */
-    double jx = base_x + L1_px * cos(th1);
-    double jy = base_y - L1_px * sin(th1);
+    double jx = base_x + L1_px * cos(th1); // x roste doprava - vykreslení uprostřed základny base_x
+    double jy = base_y - L1_px * sin(th1); // y roste dolů - vykreslení nad základnou base_y
 
     result.joint.x = (int)lround(jx);
     result.joint.y = (int)lround(jy);
 
     /* Konec druhého ramene (TCP) – úhel (th1 + th2) */
     double t_total = th1 + th2;
-    double tx = jx + L2_px * cos(t_total);
-    double ty = jy - L2_px * sin(t_total);
+    double tx = jx + L2_px * cos(t_total); // souřadnice TCP - tx
+    double ty = jy - L2_px * sin(t_total); // souřadnice TCP - ty 
 
-    result.tcp.x = (int)lround(tx);
-    result.tcp.y = (int)lround(ty);
+    result.tcp.x = (int)lround(tx); // zaokrouhlení na celé číslo (2D pole je integer)
+    result.tcp.y = (int)lround(ty); 
 
     *out = result;
 }
@@ -153,37 +153,27 @@ void d_robot_draw(const D_RobotPoints *rp) {
     /* Základna jako "<=====>" okolo base.x, base.y */
     const char *base_str = "<=====>";
     int len = 0;
-    while (base_str[len] != '\0') len++;
+    while (base_str[len] != '\0') len++; // délka řetězce základny
 
-    int start_x = rp->base.x - len / 2;
+    int start_x = rp->base.x - len / 2; // začátek základny tak, aby byla centrovaná na base.x
     for (int i = 0; i < len; ++i) {
-        d_canvas_set_pixel(start_x + i, rp->base.y, base_str[i], B_CYAN);
+        d_canvas_set_pixel(start_x + i, rp->base.y, base_str[i], B_CYAN); /* základna modrá */
     }
 
     /* Ramena jako '*' */
-    d_canvas_draw_line(rp->base.x,  rp->base.y - 1,  /* base kloub nad základnou */
-                       rp->joint.x, rp->joint.y,
-                       '*', B_CYAN);
-    d_canvas_draw_line(rp->joint.x, rp->joint.y,
-                       rp->tcp.x,   rp->tcp.y,
-                       '*', B_CYAN);
+    d_canvas_draw_line(rp->base.x,  rp->base.y - 1, rp->joint.x, rp->joint.y, '*', B_CYAN); // rameno L1
+    d_canvas_draw_line(rp->joint.x, rp->joint.y, rp->tcp.x,   rp->tcp.y, '*', B_CYAN); // rameno L2
 
     /* Klouby jako 'O' */
-    d_canvas_set_pixel(rp->base.x,  rp->base.y - 1, 'O', B_RED);    /* base kloub */
-    d_canvas_set_pixel(rp->joint.x, rp->joint.y,    'O', B_RED);    /* loket */
+    d_canvas_set_pixel(rp->base.x,  rp->base.y - 1, 'O', B_RED);    /* J0 kloub */
+    d_canvas_set_pixel(rp->joint.x, rp->joint.y,    'O', B_RED);    /* J1 kloub */
 
     /* TCP jako '+' */
-    d_canvas_set_pixel(rp->tcp.x,   rp->tcp.y,      '+', B_YELLOW);
+    d_canvas_set_pixel(rp->tcp.x,   rp->tcp.y,      '+', B_YELLOW); /* TCP */
 }
 
 /* Školní funkce: spočítá body a rovnou nakreslí robota (školní úhly) */
-void d_robot_draw_from_angles(int base_x,
-                              int base_y,
-                              int L1_px,
-                              int L2_px,
-                              double shoulder_deg,
-                              double elbow_deg)
-{
+void d_robot_draw_from_angles(int base_x, int base_y, int L1_px, int L2_px, double shoulder_deg, double elbow_deg) {
     D_RobotPoints rp;
     d_robot_compute_points(base_x, base_y,
                            L1_px, L2_px,
@@ -192,17 +182,17 @@ void d_robot_draw_from_angles(int base_x,
     d_robot_draw(&rp);
 }
 
-/* Výpočet bodů podle DOBOT úhlů J2/J3 a L1/L2 v mm */
-/* KInverse + KForward používají:
+/* Výpočet bodů podle pekla DOBOT úhlů J2/J3 a L1/L2 v mm
+    - základna na [base_x, base_y] v pixelech
+    - J2/J3 ve stupních (Dobotovské úhly)
+    - výstup do out (D_RobotPoints)
+
+   KInverse + KForward používají:
    joint:  x = L1 * sin(J2),  z = L1 * cos(J2)
    tcp:    x = L1 * sin(J2) + L2 * cos(J3)
            z = L1 * cos(J2) - L2 * sin(J3)
 */
-void d_robot_compute_points_dobot(int base_x,
-                                  int base_y,
-                                  const JointsDeg *joints,
-                                  D_RobotPoints *out)
-{
+void d_robot_compute_points_dobot(int base_x, int base_y, const JointsDeg *joints, D_RobotPoints *out){
     D_RobotPoints result;
     result.base.x = base_x;
     result.base.y = base_y;
@@ -222,7 +212,7 @@ void d_robot_compute_points_dobot(int base_x,
        tcp_x_mm += EFFECTOR_OFFSET_X;
     */
 
-    /* Převod mm → pixely, z nahoru → y dolů */
+    /* Převod mm na pixely, z nahoru a y dolů */
     result.joint.x = base_x + d_mm_to_px(joint_x_mm);
     result.joint.y = base_y - d_mm_to_px(joint_z_mm);
 
@@ -233,10 +223,7 @@ void d_robot_compute_points_dobot(int base_x,
 }
 
 /* Vykreslení robota podle J2/J3 (Dobota) – základna na daných pixelech */
-void d_robot_draw_from_joints(int base_x,
-                              int base_y,
-                              const JointsDeg *joints)
-{
+void d_robot_draw_from_joints(int base_x, int base_y, const JointsDeg *joints) {
     D_RobotPoints rp;
     d_robot_compute_points_dobot(base_x, base_y, joints, &rp);
     //d_canvas_clear();
@@ -245,16 +232,14 @@ void d_robot_draw_from_joints(int base_x,
 }
 
 /* Komfortní varianta – base doprostřed dole */
-void d_robot_draw_from_joints_default(const JointsDeg *joints)
-{
+void d_robot_draw_from_joints_default(const JointsDeg *joints) {
     int base_x = DR_CANVAS_W / 2;
     int base_y = DR_CANVAS_H - 2;
     d_robot_draw_from_joints(base_x, base_y, joints);
 }
 
 /* Jednoduchý výpis textu na jeden řádek (s barvou) */
-void d_print(int x, int y, const char *text, t_color color)
-{
+void d_print(int x, int y, const char *text, t_color color) {
     if (y < 0 || y >= DR_CANVAS_H) return;
     if (text == NULL) return;
 
@@ -269,8 +254,7 @@ void d_print(int x, int y, const char *text, t_color color)
 }
 
 /* Víceřádkový text do okénka (s barvou) */
-void d_print_box(int x, int y, int width, const char *text, t_color color)
-{
+void d_print_box(int x, int y, int width, const char *text, t_color color) {
     if (width <= 0 || text == NULL) return;
 
     int cx = x;

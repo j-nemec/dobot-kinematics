@@ -1,26 +1,24 @@
 #ifndef KINEMATICS_H
 #define KINEMATICS_H
 
-typedef enum { // Kinematics status typ s návratovými kódy kinematiky robota
+typedef enum { // Kinematics status - typ s návratovými kódy kinematiky robota
     K_SUCCESS = 0,
     K_ERR_UNREACHABLE = -1,
     K_ERR_INVALID_ANGLES = -2,
     K_ERR_NO_SOLUTION = -3
 } KinematicsStatus; 
 
-typedef struct { // Joint úhly ve stupních
+typedef struct { // Klouby - úhly ve stupních
     double J1_deg, J2_deg, J3_deg;
 } JointsDeg;
 
-typedef struct { // Joint úhly v radiánech
+typedef struct { // Klouby - úhly v radiánech
     double J1,     J2,     J3;
 } JointsRad;
 
 typedef struct { // Tool Center Point (TCP) pozice v mm
     double x, y, z;
 } TCP_Position;
-
-//double rad2deg(double radians);
 
 /* Test zda jsou úhly v platném rozsahu */
 KinematicsStatus CheckAngles(JointsDeg *joints); 
