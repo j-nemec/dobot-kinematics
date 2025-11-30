@@ -2,10 +2,10 @@
 #define _USE_MATH_DEFINES
 
 
-double rad2deg(double radians) { // Convert radians to degrees - only for internal use
+double rad2deg(double radians) { // Převod radiánů na stupně - pouze pro interní použití
     return radians*180/M_PI;
 }
 
-double deg2rad(double degrees) { // Convert degrees to radians - only for internal use
+double deg2rad(double degrees) { // Převod stupňů na radiány - pouze pro interní použití
     return degrees*M_PI/180;
 }

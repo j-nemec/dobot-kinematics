@@ -1,11 +1,31 @@
 /* 
- * d_terminal.c
+ *  =================    d_terminal.c   =================
  * Implementace funkcí pro práci s terminálem (ANSI kódy)
  * https://cs.wikipedia.org/wiki/ANSI_escape_kód
  * 
  * Autor: Josef Němec
- * Datum: 2025-07-20    
- */
+ * Datum: 2025-07-20 
+ * 
+ * Popis:
+ * Tento modul obsahuje funkce pro inicializaci terminálu,
+ * nastavení barev textu, pohyb kurzoru, vymazání obrazovky
+ * a schování/zobrazení kurzoru pomocí ANSI escape kódů.
+ * 
+ * Funkce t_init() povolí zpracování ANSI kódů na Windows.
+ * Funkce t_shutdown() obnoví původní mód konzole.
+ * Funkce t_clrscr() vymaže obrazovku a nastaví kurzor na pozici 1,1.
+ * Funkce t_gotoxy() přesune kurzor na zadané souřadnice (1-based).
+ * Funkce t_textcolor() nastaví barvu textu podle výčtového typu t_color.
+ * Funkce t_reset_color() obnoví výchozí barvu textu.
+ * Funkce t_hide_cursor() a t_show_cursor() schovají nebo zobrazí kurzor.
+ * Funkce t_keypress_wait() čeká na stisk klávesy Enter.    
+ * 
+ * 
+ * Escape sekvence pro ANSI jsou univerzální a fungují na většině terminálů,
+ * včetně Linuxu a macOS, takže zde není potřeba žádná speciální inicializace.
+ * V rámci kompatibility jsem zavrhnul použití knihovny ncurses a conio.h, 
+ * protože projekt cílí na jednoduchost a přenositelnost.
+ */   
 
 #include <stdio.h>
 #include "d_terminal.h"
@@ -40,13 +60,6 @@ void t_init(void) { // Inicializace terminálu (povolení ANSI na Windows)
         }
     #endif
 }
-
-/*
-* Escape sekvence pro ANSI jsou univerzální a fungují na většině terminálů,
-* včetně Linuxu a macOS, takže zde není potřeba žádná speciální inicializace.
-* V rámci kompatibility jsem zavrhnul použití knihovny ncurses a conio.h, 
-* protože projekt cílí na jednoduchost a přenositelnost.
-*/
 
 void t_shutdown(void) { // Ukončení – vrátí mód konzole a zobrazí kurzor
     t_show_cursor();

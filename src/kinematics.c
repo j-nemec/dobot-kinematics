@@ -1,35 +1,65 @@
+/*
+ * Implementace kinematiky pro 2DOF robotické rameno Dobot.
+ * Autor: Josef Němec
+ * Datum: 2025-09-15
+ * 
+ * Popis:
+ * Tento modul obsahuje funkce pro výpočet inverzní a forward kinematiky
+ * pro robotické rameno Dobot s dvěma stupni volnosti (2DOF).
+ * Kinematika je založena na geometrických vztazích mezi délkami ramen
+ * a úhly kloubů.
+ * Konstanty L1 a L2 představují délky ramen v mm,
+ * které jsou definovány v souboru config.h.
+ * Funkce používají struktury JointsDeg a TCP_Position pro reprezentaci
+ * úhlů kloubů ve stupních a pozice TCP v mm.
+ * Funkce vracejí stav kinematiky pomocí výčtového typu KinematicsStatus.
+ * 
+ * Matematika je královnou všech věd! :) Hýbe nejen robotem, ale i světem. :D
+ */
+
 #include <stdio.h>
 #include <math.h>
 #include "kinematics.h"
 #include "math_utils.h"
 #include "config.h"
 
-KinematicsStatus CheckAngles(JointsDeg *joints) { // Check if joint angles are within valid ranges
-    if(joints->J1_deg >= J1_MIN_DEG && joints->J1_deg <= J1_MAX_DEG &&
+KinematicsStatus CheckAngles(JointsDeg *joints) { // Test zda jsou úhly v platném rozsahu
+    if(joints->J1_deg >= J1_MIN_DEG && joints->J1_deg <= J1_MAX_DEG && // Ke struktuře přistupuji přes ukazatel
        joints->J2_deg >= J2_MIN_DEG && joints->J2_deg <= J2_MAX_DEG &&
        joints->J3_deg >= J3_MIN_DEG && joints->J3_deg <= J3_MAX_DEG) {
        return K_SUCCESS;
     } else {
-        return K_ERR_INVALID_ANGLES; // One or more angles are out of range
+        return K_ERR_INVALID_ANGLES; // Jeden z úhlů je mimo rozsah
     }
 }
 
-KinematicsStatus KInverse(TCP_Position *position, JointsDeg *joints) { // Inverse kinematics: Calculate joint angles from TCP position
+KinematicsStatus KInverse(TCP_Position *position, JointsDeg *joints) { // Inverzní kinematika: Spočítá úhly kloubů z pozice TCP
     /* if(position->x < 0 || position->y < 0 || position->z < 0) {
         return K_ERR_UNREACHABLE; // Unreachable position
     } */
+
+    /*
+        Přístup k výpočtu inverzní kinematiky:
+        1. Vypočítat vzdálenost c od základny k TCP
+        2. Vypočítat úhel alpha mezi osou X a přímkou od základny k TCP
+        3. Vypočítat úhel beta pomocí kosinové věty
+        4. Spočítat J2 a J3 z těchto úhlů a převést na stupně
+        Problém je v počítání úhlů Dobota - je potřeb uvažovat, že v případě J2 = 0° je rameno svisle nahoru a ne vodorovně.
+        Stejný problém je u j3 = 0°, kdy je rameno natažené vodorovně.
+    */
+
     double c = hypot((position->x - EFFECTOR_OFFSET_X), position->z);
     // double c = sqrt(pow(position->x - EFFECTOR_OFFSET_X, 2) + pow(position->z, 2));
     double alpha = atan2(position->z, position->x - EFFECTOR_OFFSET_X);
     double beta = acos(-(L2*L2 - L1*L1 - c*c)/(2 * L1 * c));
-    joints->J2_deg = 90 - rad2deg(alpha + beta);
-    joints->J3_deg = 180 - rad2deg(alpha + beta + acos((L1*L1 + L2*L2 - c*c)/(2 * L1 * L2)));
+    joints->J2_deg = 90 - rad2deg(alpha + beta); // Rameno L1 úhel J2 = 0° je svisle nahoru
+    joints->J3_deg = 180 - rad2deg(alpha + beta + acos((L1*L1 + L2*L2 - c*c)/(2 * L1 * L2))); // Rameno L2 úhel J3 = 0° je vodorovně
 
     return K_SUCCESS; // Success 
 }
 
-// Forward kinematics: Calculate TCP position from joint angles
-KinematicsStatus KForward(JointsDeg *joints, TCP_Position *position) { // Forward kinematics: Calculate TCP position from joint angles
+// Forward kinematika: Spočítá pozici TCP z úhlů kloubů
+KinematicsStatus KForward(JointsDeg *joints, TCP_Position *position) { 
     switch(CheckAngles(joints))  {
        case K_SUCCESS: {
             JointsRad joints_rad;
@@ -40,13 +70,13 @@ KinematicsStatus KForward(JointsDeg *joints, TCP_Position *position) { // Forwar
             
             position->z = L1 * cos(joints_rad.J2) - L2 * sin(joints_rad.J3);
             position->x = L1 * sin(joints_rad.J2) + L2 * cos(joints_rad.J3);
-            position->y = 0; // Assuming planar movement for simplicity
+            position->y = 0; // Zobrazujeme pouze v rovině XZ
 
-            return K_SUCCESS; // Success
+            return K_SUCCESS; // Vše v pořádku
        }
        case K_ERR_INVALID_ANGLES:
-           return K_ERR_INVALID_ANGLES; // Invalid angles
+           return K_ERR_INVALID_ANGLES; // Špatné úhly
        default:
-           return K_ERR_UNREACHABLE; // Unreachable position
+           return K_ERR_UNREACHABLE; // Nedosažitelná pozice
    } 
 }

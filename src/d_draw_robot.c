@@ -1,4 +1,29 @@
-/* d_robot_canvas.c */
+/* d_robot_canvas.c 
+ * 
+ *  Implementace kreslení robota na textové plátno v terminálu.
+ * 
+ *  Autor: Josef Němec
+ *  Datum: 2025-10-05
+ * 
+ *  Popis:
+ * 
+ *  Tento modul poskytuje funkce pro kreslení jednoduchého 2D
+ *  modelu robota na textové plátno v terminálu pomocí ASCII
+ *  znaků a barev. Kreslení probíhá na virtuální canvas (dvourozměrné pole),
+ *  který je následně vykreslen do terminálu.
+ *  Kreslení robota je založeno na zadaných úhlech ramen a délce ramen.
+ *  Měřítko je definováno konstantou DR_MM_PER_PIXEL.
+ *  Funkce využívají Bresenhamův algoritmus pro kreslení úseček.
+ *  Tento algoritmus funguje na principu inkrementálního rozhodování
+ *  o tom, který pixel vyplnit, aby vznikla co nejpřesnější přímka
+ *  mezi dvěma body v diskrétní mřížce. 
+ *  Struktura D_RobotPoints obsahuje klíčové body robota v pixelové mřížce.
+ *  Funkce umožňují výpočet bodů robota z úhlů kloubů a jejich vykreslení.
+ *  Tento modul závisí na modulu d_terminal pro práci s terminálem.
+ *  
+ *  ASCII art je umění budoucnosti! :D      
+ */
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>   /* abs() */
