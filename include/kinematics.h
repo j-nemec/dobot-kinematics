@@ -22,10 +22,13 @@ typedef struct { // Tool Center Point (TCP) position in mm
 
 //double rad2deg(double radians);
 
-KinematicsStatus CheckAngles(JointsDeg *joints);
-KinematicsStatus KInverse(TCP_Position *position, JointsDeg *joints);
-KinematicsStatus KForward(JointsDeg *joints, TCP_Position *position);
+/* Check if joint angles are within valid ranges */
+KinematicsStatus CheckAngles(JointsDeg *joints); 
 
-void test(JointsDeg *joints);
+/* Inverse kinematics: Calculate joint angles from TCP position */
+KinematicsStatus KInverse(TCP_Position *position, JointsDeg *joints); 
+
+/* Forward kinematics: Calculate TCP position from joint angles */
+KinematicsStatus KForward(JointsDeg *joints, TCP_Position *position);
 
 #endif

@@ -3,15 +3,6 @@
 
 /* Hodnoty získány z dokumentace: Dobot Magician User Guide v2.0 */
 
-/*
-    Bude fajn používat definici pro konkrétní OS - kvůli otevírání souborů atd.
-    #ifdef _WIN32
-        // Windows-specific code
-    #else
-        // Unix/Linux-specific code
-    #endif 
-*/
-
 /* Geometrie */
 #define EFFECTOR_OFFSET_X  61.0     /* mm */
 #define EFFECTOR_OFFSET_Z  70.0     /* mm */

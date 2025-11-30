@@ -1,15 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 #include "kinematics.h"
+#include "math_utils.h"
 #include "config.h"
-
-static double rad2deg(double radians) { // Convert radians to degrees - only for internal use
-    return radians*180/M_PI;
-}
-
-static double deg2rad(double degrees) { // Convert degrees to radians - only for internal use
-    return degrees*M_PI/180;
-}
 
 KinematicsStatus CheckAngles(JointsDeg *joints) { // Check if joint angles are within valid ranges
     if(joints->J1_deg >= J1_MIN_DEG && joints->J1_deg <= J1_MAX_DEG &&
@@ -56,11 +49,4 @@ KinematicsStatus KForward(JointsDeg *joints, TCP_Position *position) { // Forwar
        default:
            return K_ERR_UNREACHABLE; // Unreachable position
    } 
-}
-
-void test(JointsDeg *joints) {
-    printf("J1 = %.2f\n", joints->J1_deg);
-    printf("J2 = %.2f\n", joints->J2_deg);
-    printf("J3 = %.2f\n", joints->J3_deg);
-    joints->J1_deg = 90;
 }
