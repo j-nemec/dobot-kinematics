@@ -83,10 +83,6 @@ int main() {
     snprintf(info, sizeof(info), 
         "TCP: x=%.1f mm y=%.1f mm z=%.1f mm\nAngles: J1=%.1f° J2=%.1f° J3=%.1f°", 
         position.x, position.y, position.z, joints.J1_deg, joints.J2_deg, joints.J3_deg);
-
-    /* třeba dolů pod robota, pár řádků nad spodní hranou */
-    /*int text_x = 2;
-    int text_y = DR_CANVAS_H - 4;*/
     
     d_robot_draw_from_joints_xz(10, DR_CANVAS_H - 2, &joints);
     d_robot_draw_from_joints_xy(65, DR_CANVAS_H / 2, &joints);
