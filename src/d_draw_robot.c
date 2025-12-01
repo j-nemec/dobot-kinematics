@@ -149,7 +149,7 @@ void d_robot_compute_points(int base_x, int base_y, int L1_px, int L2_px, double
 }
 
 /* Nakreslení robota podle bodů */
-void d_robot_draw(const D_RobotPoints *rp) {
+void d_robot_draw_xz(const D_RobotPoints *rp) {
     /* Základna jako "<=====>" okolo base.x, base.y */
     const char *base_str = "<=====>";
     int len = 0;
@@ -172,6 +172,32 @@ void d_robot_draw(const D_RobotPoints *rp) {
     d_canvas_set_pixel(rp->tcp.x,   rp->tcp.y,      '+', B_YELLOW); /* TCP */
 }
 
+/* Nakreslení robota pro XY pohled (pohled shora)
+ * - základna jako vertikální sloupek
+ * - ramena od bodu base.x, base.y
+ */
+void d_robot_draw_xy(const D_RobotPoints *rp) {
+    /* Základna jako vertikální "sloupek" | okolo base.y */
+    int half_h = 2;  // výška půlky sloupku (celkem 2*half_h+1)
+    for (int dy = -half_h; dy <= half_h; ++dy) {
+        d_canvas_set_pixel(rp->base.x, rp->base.y + dy, '|', B_CYAN);
+    }
+
+    /* Ramena jako '*' – od středu základny */
+    d_canvas_draw_line(rp->base.x, rp->base.y,
+                       rp->joint.x, rp->joint.y, '*', B_CYAN); // L1
+
+    d_canvas_draw_line(rp->joint.x, rp->joint.y,
+                       rp->tcp.x,   rp->tcp.y,   '*', B_CYAN); // L2
+
+    /* Klouby jako 'O' */
+    d_canvas_set_pixel(rp->base.x,  rp->base.y, 'O', B_RED);     /* J0 */
+    d_canvas_set_pixel(rp->joint.x, rp->joint.y, 'O', B_RED);    /* J1 */
+
+    /* TCP jako '+' */
+    d_canvas_set_pixel(rp->tcp.x, rp->tcp.y, '+', B_YELLOW);
+}
+
 /* Školní funkce: spočítá body a rovnou nakreslí robota (školní úhly) */
 void d_robot_draw_from_angles(int base_x, int base_y, int L1_px, int L2_px, double shoulder_deg, double elbow_deg) {
     D_RobotPoints rp;
@@ -179,7 +205,7 @@ void d_robot_draw_from_angles(int base_x, int base_y, int L1_px, int L2_px, doub
                            L1_px, L2_px,
                            shoulder_deg, elbow_deg,
                            &rp);
-    d_robot_draw(&rp);
+    d_robot_draw_xz(&rp);
 }
 
 /* Výpočet bodů podle pekla DOBOT úhlů J2/J3 a L1/L2 v mm
@@ -222,21 +248,91 @@ void d_robot_compute_points_dobot(int base_x, int base_y, const JointsDeg *joint
     *out = result;
 }
 
+/* -------------------------------------------------------------------------
+ * Výpočet bodů v projekci do roviny X-Y (pohled shora).
+ *
+ * Předpoklad:
+ *  - J1 = otočení základny kolem osy Z
+ *  - J2, J3 = stejné ramenové úhly jako v "vertikální" kinematice
+ *
+ * Postup:
+ * 1) spočteme horizontální projekci vzdálenosti od osy rotační základny:
+ *      r_joint = L1 * cos(J2)
+ *      r_tcp   = L1 * cos(J2) + L2 * cos(J2 + J3)
+ * 2) tuto vzdálenost rozložíme do X, Y pomocí J1:
+ *      joint_x = r_joint * cos(J1)
+ *      joint_y = r_joint * sin(J1)
+ *      tcp_x   = r_tcp   * cos(J1)
+ *      tcp_y   = r_tcp   * sin(J1)
+ * 3) převedeme z mm do pixelů a namapujeme na canvas:
+ *      canvas_x = base_x + mm_to_px(...)
+ *      canvas_y = base_y - mm_to_px(...)  // Y roste dolů, proto mínus
+ * ------------------------------------------------------------------------- */
+void d_robot_compute_points_dobot_xy(int base_x, int base_y, const JointsDeg *joints, D_RobotPoints *out) {
+    D_RobotPoints result;
+    result.base.x = base_x;
+    result.base.y = base_y;
+
+    /* přepočet na radiany */
+    double j1 = deg2rad(joints->J1_deg);
+    double j2 = deg2rad(joints->J2_deg);
+    double j3 = deg2rad(joints->J3_deg);
+
+    /* horizontální (XY) projekce vzdáleností od svislé osy */
+    double r_joint_mm = L1 * cos(j2);
+    double r_tcp_mm   = L1 * cos(j2) + L2 * cos(j2 + j3);
+
+    /* souřadnice v mm v XY rovině (pohled shora) */
+    double joint_x_mm = r_joint_mm * cos(j1);
+    double joint_y_mm = r_joint_mm * sin(j1);
+
+    double tcp_x_mm   = r_tcp_mm   * cos(j1);
+    double tcp_y_mm   = r_tcp_mm   * sin(j1);
+
+    /* převod na pixely a mapování do canvasu */
+    result.joint.x = base_x + d_mm_to_px(joint_x_mm);
+    result.joint.y = base_y - d_mm_to_px(joint_y_mm);  /* y roste dolů */
+
+    result.tcp.x   = base_x + d_mm_to_px(tcp_x_mm);
+    result.tcp.y   = base_y - d_mm_to_px(tcp_y_mm);
+
+    *out = result;
+}
+
 /* Vykreslení robota podle J2/J3 (Dobota) – základna na daných pixelech */
-void d_robot_draw_from_joints(int base_x, int base_y, const JointsDeg *joints) {
+void d_robot_draw_from_joints_xz(int base_x, int base_y, const JointsDeg *joints) {
     D_RobotPoints rp;
     d_robot_compute_points_dobot(base_x, base_y, joints, &rp);
     //d_canvas_clear();
-    d_robot_draw(&rp);
+    d_robot_draw_xz(&rp);
     d_canvas_render();
 }
 
 /* Komfortní varianta – base doprostřed dole */
-void d_robot_draw_from_joints_default(const JointsDeg *joints) {
+void d_robot_draw_from_joints_xz_default(const JointsDeg *joints) {
     int base_x = DR_CANVAS_W / 2;
     int base_y = DR_CANVAS_H - 2;
-    d_robot_draw_from_joints(base_x, base_y, joints);
+    d_robot_draw_from_joints_xz(base_x, base_y, joints);
 }
+
+/* Vykreslení robota v projekci X-Y podle J1/J2/J3 (pohled shora)
+   – základna na daných pixelech (base_x, base_y) */
+void d_robot_draw_from_joints_xy(int base_x, int base_y, const JointsDeg *joints) {
+    D_RobotPoints rp;
+
+    d_robot_compute_points_dobot_xy(base_x, base_y, joints, &rp);
+    d_robot_draw_xy(&rp);
+    d_canvas_render();
+}
+
+/* Komfortní varianta – základnu dej doprostřed canvasu (pohled shora) */
+void d_robot_draw_from_joints_xy_default(const JointsDeg *joints) {
+    int base_x = DR_CANVAS_W / 2;
+    int base_y = DR_CANVAS_H / 2;   /* pro top view dává smysl střed canvasu */
+
+    d_robot_draw_from_joints_xy(base_x, base_y, joints);
+}
+
 
 /* Jednoduchý výpis textu na jeden řádek (s barvou) */
 void d_print(int x, int y, const char *text, t_color color) {

@@ -6,7 +6,7 @@
 #include "kinematics.h"  /* kvůli JointsDeg */
 
 /* Rozměry plátna (v pixelech/znacích) */
-#define DR_CANVAS_W 80
+#define DR_CANVAS_W 130
 #define DR_CANVAS_H 30
 
 /* Měřítko: kolik mm odpovídá jednomu pixelu */
@@ -43,10 +43,14 @@ void d_robot_draw_from_angles(int base_x, int base_y, int L1_px, int L2_px, doub
 void d_robot_compute_points_dobot(int base_x, int base_y, const JointsDeg *joints, D_RobotPoints *out);
 
 /* vykreslí robota podle J2/J3 – základna na [base_x, base_y] */
-void d_robot_draw_from_joints(int base_x, int base_y, const JointsDeg *joints);
+void d_robot_draw_from_joints_xz(int base_x, int base_y, const JointsDeg *joints);
 
 /* Bezpozicové zobrazení – základna doprostřed dole */
-void d_robot_draw_from_joints_default(const JointsDeg *joints);
+void d_robot_draw_from_joints_xz_default(const JointsDeg *joints);
+
+/* vykreslí robota podle J1/J2/J3 - pohled shora x, y */
+void d_robot_draw_from_joints_xy(int base_x, int base_y, const JointsDeg *joints);
+void d_robot_draw_from_joints_xy_default(const JointsDeg *joints);
 
 /*  d_print a d_print_box pro výpis textu na plátno */
 void d_print(int x, int y, const char *text, t_color color); 

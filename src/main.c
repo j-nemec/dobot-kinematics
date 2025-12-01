@@ -17,9 +17,9 @@ int main() {
     t_init();
    
     printf("Kofigurace:\n\tL1 = %.2f\n\tL2 = %.2f\n", L1, L2);
-    /*
+    
     printf("Inverse kinematics test:\n");
-    printf("Position (mm: x, 0, z): ");
+    printf("Position (mm: x, y, z): ");
     scanf("%lf, %lf, %lf", &position.x, &position.y, &position.z);
     printf("x=%.2f, y=%.2f, z=%.2f\n", position.x, position.y, position.z);
 
@@ -43,11 +43,11 @@ int main() {
            printf("Neznamy problem!\n");
            break;
     }
-    */
+    
     printf("\nForward kinematics test:\n");
-    joints.J1_deg = 0; // Základna rovně
+    /*joints.J1_deg = 0; // Základna rovně
     joints.J2_deg = 21; // Rameno 1
-    joints.J3_deg = 0; // Rameno 2
+    joints.J3_deg = 0; // Rameno 2*/
    
     switch(KForward(&joints, &position))  {
        case K_SUCCESS:
@@ -80,14 +80,17 @@ int main() {
     d_canvas_clear();
 
     char info[128];
-    snprintf(info, sizeof(info), "TCP: x=%.1fmm z=%.1fmm\nJ2=%.1f deg J3=%.1f deg", position.x, position.z, joints.J2_deg, joints.J3_deg);
+    snprintf(info, sizeof(info), 
+        "TCP: x=%.1f mm y=%.1f mm z=%.1f mm\nAngles: J1=%.1f° J2=%.1f° J3=%.1f°", 
+        position.x, position.y, position.z, joints.J1_deg, joints.J2_deg, joints.J3_deg);
 
     /* třeba dolů pod robota, pár řádků nad spodní hranou */
-    int text_x = 2;
-    int text_y = DR_CANVAS_H - 4;
+    /*int text_x = 2;
+    int text_y = DR_CANVAS_H - 4;*/
     
-    d_robot_draw_from_joints(2, DR_CANVAS_H - 2, &joints);
-    d_robot_draw_from_joints(30, DR_CANVAS_H - 2, &joints);
+    d_robot_draw_from_joints_xz(10, DR_CANVAS_H - 2, &joints);
+    d_robot_draw_from_joints_xy(65, DR_CANVAS_H / 2, &joints);
+    //d_robot_draw_from_joints(30, DR_CANVAS_H - 2, &joints);
     t_textcolor(B_YELLOW);
     d_print_box(2, 2, DR_CANVAS_W - 4, info, B_YELLOW);
 
