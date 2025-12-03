@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include <stdlib.h>   /* abs() */
 
 #include "config.h"       /* Ramena L1, L2 v mm, OFFSETY */
@@ -87,7 +88,7 @@ void d_canvas_draw_line(int x0, int y0, int x1, int y1, char ch, t_color color) 
 
 /* Vypsání plátna na obrazovku */
 void d_canvas_render(void) {
-    t_gotoxy(1, 1);  // Začátek vlevo nahoře - znalci pascalu vědí proč :D
+    t_gotoxy(1, DR_UI_LINES + 1);  // Začátek vlevo nahoře - znalci pascalu vědí proč :D
 
     t_color last_color = COLOR_DEFAULT;
 
@@ -278,18 +279,22 @@ void d_robot_compute_points_dobot_xy(int base_x, int base_y, const JointsDeg *jo
     double j2 = deg2rad(joints->J2_deg);
     double j3 = deg2rad(joints->J3_deg);
 
-    /* horizontální (XY) projekce vzdáleností od svislé osy */
-    double r_joint_mm = L1 * cos(j2);
-    double r_tcp_mm   = L1 * cos(j2) + L2 * cos(j2 + j3);
+    /* --- 1) horizontální vzdálenosti od osy Z (stejné X jako v XZ modelu) --- */
+    double joint_r_mm = L1 * sin(j2);                    // joint_x_mm v XZ
+    double tcp_r_mm   = L1 * sin(j2) + L2 * cos(j3);     // tcp_x_mm v XZ
 
-    /* souřadnice v mm v XY rovině (pohled shora) */
-    double joint_x_mm = r_joint_mm * cos(j1);
-    double joint_y_mm = r_joint_mm * sin(j1);
+    /* pokud chceš kreslit skutečný TCP včetně offsetu v X:
+       tcp_r_mm += EFFECTOR_OFFSET_X;
+    */
 
-    double tcp_x_mm   = r_tcp_mm   * cos(j1);
-    double tcp_y_mm   = r_tcp_mm   * sin(j1);
+    /* --- 2) rozložení do X-Y podle J1 --- */
+    double joint_x_mm = joint_r_mm * cos(j1);
+    double joint_y_mm = joint_r_mm * sin(j1);
 
-    /* převod na pixely a mapování do canvasu */
+    double tcp_x_mm   = tcp_r_mm * cos(j1);
+    double tcp_y_mm   = tcp_r_mm * sin(j1);
+
+    /* --- 3) převod na pixely a mapování do canvasu --- */
     result.joint.x = base_x + d_mm_to_px(joint_x_mm);
     result.joint.y = base_y - d_mm_to_px(joint_y_mm);  /* y roste dolů */
 
@@ -298,6 +303,7 @@ void d_robot_compute_points_dobot_xy(int base_x, int base_y, const JointsDeg *jo
 
     *out = result;
 }
+
 
 /* Vykreslení robota podle J2/J3 (Dobota) – základna na daných pixelech */
 void d_robot_draw_from_joints_xz(int base_x, int base_y, const JointsDeg *joints) {

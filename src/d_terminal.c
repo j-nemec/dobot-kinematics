@@ -18,7 +18,7 @@
  * Funkce t_textcolor() nastaví barvu textu podle výčtového typu t_color.
  * Funkce t_reset_color() obnoví výchozí barvu textu.
  * Funkce t_hide_cursor() a t_show_cursor() schovají nebo zobrazí kurzor.
- * Funkce t_keypress_wait() čeká na stisk klávesy Enter.    
+ * Funkce t_keypress_wait(mode) čeká na stisk klávesy Enter.    
  * 
  * 
  * Escape sekvence pro ANSI jsou univerzální a fungují na většině terminálů,
@@ -28,6 +28,7 @@
  */   
 
 #include <stdio.h>
+#include <string.h>
 #include "d_terminal.h"
 
 #ifdef _WIN32   // Test, zda program kompiluji na Windows (pro povolení ANSI kódů) 
@@ -59,6 +60,13 @@ void t_init(void) { // Inicializace terminálu (povolení ANSI na Windows)
             g_modeChanged = 1; // mód byl změněn
         }
     #endif
+    /* Alternativní screen - vypnutí scrollbacku */
+    printf("\033[?1049h");
+    printf("\033[?1007h");
+    /* Vypnutí myši nechci scroll a vstupy do scanf() */
+    printf("\033[?9h");      // X10 mouse
+    
+    fflush(stdout);
 }
 
 void t_shutdown(void) { // Ukončení – vrátí mód konzole a zobrazí kurzor
@@ -76,6 +84,8 @@ void t_shutdown(void) { // Ukončení – vrátí mód konzole a zobrazí kurzor
             g_modeChanged = 0;
         }
     #endif
+    printf("\033[?1049l");   // ukončení alternate screen
+    fflush(stdout);
 }
 
 /* clrscr */
@@ -120,17 +130,47 @@ void t_show_cursor(void) {
     fflush(stdout);
 }
 
-void t_keypress_wait(void) { // čekání na stisk klávesy Enter
-    int c;
+void t_get_line(char *buffer, size_t size) { 
+    /* 
+        Používám size_t, protože je to standardní typ pro velikosti polí a vrací ho sizeof.
+        Funkci to dělá univerzální a bezpečnou i pro větší buffery, než by zvládlo int.
+    */
+    t_textcolor(B_GREEN);
+    if (fgets(buffer, size, stdin)) {
+        buffer[strcspn(buffer, "\n")] = '\0';    // odstranění znaku nového řádku
+    }
+    t_textcolor(COLOR_DEFAULT);
+}
 
+void t_keypress_wait(buffer_mode mode) { // čekání na stisk klávesy Enter
+    if(mode == CLEAN_BUFF) { 
+        t_clean_buff();
+    }
+    printf("Press Enter..."); 
+    fflush(stdout);
+    while (getchar() != '\n');
+}
+
+void t_mouse_enable(void) {
+    //printf("\033[?9h");      // X10 mouse
+    printf("\033[?1000h");   // normal tracking
+    printf("\033[?1002h");   // button tracking
+    printf("\033[?1006h");   // SGR extended mouse*/
+}
+
+void t_mouse_disable(void) {
+    printf("\033[?1000l");
+    printf("\033[?1002l");
+    printf("\033[?1006l");
+}
+
+void t_clean_buff(void) {
     /*  
      * Vyprázdnění bufferu po scanf() - není-li provedeno, může dojít k postupnému 
      * vypadávání vlasů uživatele při opakovaném volání této funkce
      * protože scanf() nechává Enter v bufferu 
      */ 
-
+    int c;
     while ((c = getchar()) != '\n' && c != EOF);
-    printf("Press Enter to end...");
-    fflush(stdout);
-    while (getchar() != '\n');
 }
+

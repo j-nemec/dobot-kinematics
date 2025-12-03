@@ -2,6 +2,14 @@
 #ifndef TERM_H
 #define TERM_H
 
+#define SCREEN_W 130
+#define SCREEN_H 30
+
+typedef enum {
+    NO_CLEAN_BUFF = 0,
+    CLEAN_BUFF = 1
+} buffer_mode;
+
 /* Jednoduchý výčet barev pro text (ANSI kódy) */
 typedef enum {
     COLOR_DEFAULT = 0,  // reset na výchozí barvu
@@ -58,6 +66,12 @@ void t_reset_color(void);
 void t_hide_cursor(void);
 void t_show_cursor(void);
 
+/* Načtení celého řádku - umožňuje načíst i prázdný řádek - to scanf neumí */
+void t_get_line(char *buffer, size_t size);
+
 /* Čekání na stisk klávesy Enter */
-void t_keypress_wait(void);
+void t_keypress_wait(buffer_mode);
+void t_clean_buff(void);
+void t_mouse_enable(void);
+void t_mouse_disable(void);
 #endif /* TERM_H */

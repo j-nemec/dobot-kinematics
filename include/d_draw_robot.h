@@ -1,14 +1,13 @@
 /* d_draw_robot.h */
 #ifndef D_DRAW_ROBOT_H
 #define D_DRAW_ROBOT_H
-
 #include "d_terminal.h"
 #include "kinematics.h"  /* kvůli JointsDeg */
 
 /* Rozměry plátna (v pixelech/znacích) */
 #define DR_CANVAS_W 130
-#define DR_CANVAS_H 30
-
+#define DR_CANVAS_H 25
+#define DR_UI_LINES 4
 /* Měřítko: kolik mm odpovídá jednomu pixelu */
 #define DR_MM_PER_PIXEL 8.0   /* 10 mm = 1 pixel, klidně změň */
 
@@ -55,5 +54,5 @@ void d_robot_draw_from_joints_xy_default(const JointsDeg *joints);
 /*  d_print a d_print_box pro výpis textu na plátno */
 void d_print(int x, int y, const char *text, t_color color); 
 void d_print_box(int x, int y, int width, const char *text, t_color color);
-
+void d_title_bar(const char *text);
 #endif /* D_DRAW_ROBOT_H */
