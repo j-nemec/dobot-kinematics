@@ -7,6 +7,12 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+/* Soubory s koordináty */
+#define F_JOINTS "joints.dat"
+#define F_POSITIONS "positions.dat"
+#define RESULTS_JOINTS "results_joints.dat"
+#define RESULTS_POSITIONS "results_positions.dat"
+
 /* Geometrie */
 #define EFFECTOR_OFFSET_X  61.0     /* mm */
 #define EFFECTOR_OFFSET_Z  70.0     /* mm */

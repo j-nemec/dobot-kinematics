@@ -45,7 +45,7 @@ KinematicsStatus KInverse(TCP_Position *position, JointsDeg *joints) { // Inverz
         2. Vypočítat úhel alpha mezi osou X a přímkou od základny k TCP
         3. Vypočítat úhel beta pomocí kosinové věty
         4. Spočítat J2 a J3 z těchto úhlů a převést na stupně
-        Problém je v počítání úhlů Dobota - je potřeb uvažovat, že v případě J2 = 0° je rameno svisle nahoru a ne vodorovně.
+        Problém je v počítání úhlů Dobota - je potřeba uvažovat, že v případě J2 = 0° je rameno svisle nahoru a ne vodorovně.
         Stejný problém je u j3 = 0°, kdy je rameno natažené vodorovně.
     */
     double dynamic_x;
@@ -79,7 +79,7 @@ KinematicsStatus KForward(JointsDeg *joints, TCP_Position *position) {
             
             position->z = L1 * cos(joints_rad.J2) - L2 * sin(joints_rad.J3);
             double dynamic_x = L1 * sin(joints_rad.J2) + L2 * cos(joints_rad.J3);
-            position->x = dynamic_x * cos(joints_rad.J1);
+            position->x = dynamic_x * cos(joints_rad.J1) + EFFECTOR_OFFSET_X;
             position->y = dynamic_x * sin(joints_rad.J1); // trhám si vlasy
 
             return K_SUCCESS; // Vše v pořádku return místo break :)

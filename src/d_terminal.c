@@ -143,6 +143,8 @@ void t_get_line(char *buffer, size_t size) {
 }
 
 void t_keypress_wait(buffer_mode mode) { // čekání na stisk klávesy Enter
+    t_gotoxy(1, 30);
+    t_textcolor(B_YELLOW);
     if(mode == CLEAN_BUFF) { 
         t_clean_buff();
     }

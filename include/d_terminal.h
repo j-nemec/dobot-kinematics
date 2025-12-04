@@ -5,6 +5,8 @@
 #define SCREEN_W 130
 #define SCREEN_H 30
 
+#define TO_UPPER(c) ( ((c) >= 'a' && (c) <= 'z') ? ((c) - ('a' - 'A')) : (c) )
+
 typedef enum {
     NO_CLEAN_BUFF = 0,
     CLEAN_BUFF = 1
