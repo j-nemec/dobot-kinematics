@@ -1,3 +1,22 @@
+/*
+ * Poznámka k návrhu UX:
+ * Po letech mimo textové terminály jsem si znovu zvykal na omezení
+ * ASCII rozhraní (proměnlivá velikost okna, scrollování, ruční vykreslování).
+ * Aktuální implementace rámuje jednoduchý „framework“ pro ASCII grafiku,
+ * což přináší něco navíc v komplexitě, ale dovoluje plnou kontrolu nad výstupem.
+ *
+ * Jazyk C je mocný, ale práce s ukazateli a pamětí vyžaduje opatrnost – i malá
+ * nepozornost se může projevit v nepředvídaném chování aplikace.
+ * 
+ * Interní poznámka autora:
+ * Další pointer otevře bránu do podsvětí – staré paměťové bloky povstanou a ovládnou
+ * svět OFFSETY a trigonometrií. :)
+ * 
+ * Varování: 
+ * Inkrementace ukazatele v této oblasti kódu může vyvolat „Rituál probuzení paměťových stínů“.
+ * ----- Segmentation fault hluboko v pekle. -----
+ */
+
 #include <stdio.h>
 #include "kinematics.h"
 #include "d_terminal.h"
@@ -394,9 +413,7 @@ int main() {
                         case 0:
                             break;
                     }
-                }
-                        
-                    
+                }          
                 volba = 2;
                 t_clrscr();
                 break;
