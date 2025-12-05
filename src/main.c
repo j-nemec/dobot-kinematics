@@ -18,25 +18,48 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "kinematics.h"
 #include "d_terminal.h"
 #include "d_draw_robot.h"
 #include "d_io.h"
 #include "ui.h"
+#include "cli.h"
 #include "config.h"
-#include <string.h>
 
-int main() {
+int main(int argc, char *argv[]) {
+    CliOptions opts;
     JointsDeg joints;
     TCP_Position position;
+
     FILE *fr, *fw;
+
     int volba = -1;
     char c = '\0';
     char banner[130]; // Tohle peklo v pythonu není :D
 
+    if (!cli_parse(argc, argv, &opts)) {
+        print_help();
+        return -1;
+    }
+   
+    if (opts.mode != MODE_NONE) {
+        if (opts.mode == MODE_FORWARD) {
+            printf("Přímá\n");
+            printf("file: %s\n", opts.input_file);
+            printf("output: %s\n", opts.output_file);
+        } else { /* MODE_INVERSE */
+            printf("Inverzní\n");
+            printf("file: %s\n", opts.input_file);
+            printf("output: %s\n", opts.output_file);
+        }
+        return 0;
+    } 
+
     d_ui_init();
+    
     while(volba != 0) {
-        d_menu(); // Hlavní nabídka
+        d_menu(); // Hlavní nabídka 
         printf("\nVolba: ");
         t_textcolor(B_GREEN);
         scanf("%d", &volba);
@@ -208,6 +231,7 @@ int main() {
                             }
                             while(d_io_read_joints(fr, &joints)!=IO_ERR_FORMAT) {
                                 if(KForward(&joints, &position)==K_SUCCESS) {
+                                    t_clrscr();
                                     d_draw_title_bar(banner);
                                     t_textcolor(B_YELLOW);
                                     printf("\nTCP: x = %.3f mm, y = %.3f mm, z = %.3f mm\n", position.x, position.y, position.z);
@@ -218,10 +242,11 @@ int main() {
                                     d_robot_draw_from_joints_xz(10, DR_CANVAS_H - 4, &joints);
                                     d_robot_draw_from_joints_xy(70, (DR_CANVAS_H / 2), &joints);
                                     d_canvas_render();
+                                    t_keypress_wait(NO_CLEAN_BUFF);
                                 }
-                                t_keypress_wait(NO_CLEAN_BUFF);
-                                t_clrscr();
+                                //t_keypress_wait(NO_CLEAN_BUFF);
                             }
+                            t_clrscr();
                             break;
                         case 0:
                             break;
@@ -395,6 +420,7 @@ int main() {
                             }
                             while(d_io_read_tcp(fr, &position)!=IO_ERR_FORMAT) {
                                 if(KInverse(&position, &joints)==K_SUCCESS) {
+                                    t_clrscr();
                                     d_draw_title_bar(banner);
                                     t_textcolor(B_YELLOW);
                                     printf("\nTCP: x = %.3f mm, y = %.3f mm, z = %.3f mm\n", position.x, position.y, position.z);
@@ -405,10 +431,10 @@ int main() {
                                     d_robot_draw_from_joints_xz(10, DR_CANVAS_H - 4, &joints);
                                     d_robot_draw_from_joints_xy(70, (DR_CANVAS_H / 2), &joints);
                                     d_canvas_render();
+                                    t_keypress_wait(NO_CLEAN_BUFF);
                                 }
-                                t_keypress_wait(NO_CLEAN_BUFF);
-                                t_clrscr();
                             }
+                            t_clrscr();
                             break;
                         case 0:
                             break;
