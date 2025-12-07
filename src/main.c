@@ -2,7 +2,7 @@
  * Poznámka k návrhu UX:
  * Po letech mimo textové terminály jsem si znovu zvykal na omezení
  * ASCII rozhraní (proměnlivá velikost okna, scrollování, ruční vykreslování).
- * Aktuální implementace rámuje jednoduchý „framework“ pro ASCII grafiku,
+ * Aktuální implementace obsahuje jednoduchý „framework“ pro ASCII grafiku,
  * což přináší něco navíc v komplexitě, ale dovoluje plnou kontrolu nad výstupem.
  *
  * Jazyk C je mocný, ale práce s ukazateli a pamětí vyžaduje opatrnost – i malá
