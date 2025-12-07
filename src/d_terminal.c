@@ -176,3 +176,22 @@ void t_clean_buff(void) {
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
+int t_get_choice(int y){ /* Není potřeba chybová kódy - tato funkce slouží jen k načtení čísla volby tzv. ošetření vstupu...  */
+    int number = 0;
+    while(scanf("%d", &number)!=1) {
+        t_clean_buff(); // V bufferu je sajrajt v podobě znaků - "Cože? Na sajrajt se musí se smetákem. To říká moje máma!"
+        t_gotoxy(0, y);
+        t_textcolor(B_RED);
+        printf("Nebylo zadáno číslo!");
+        t_textcolor(WHITE);
+        for(int n = 0; n<130; n++) {
+            t_gotoxy(n, y+1);
+            printf(" ");
+        }
+        t_gotoxy(0, y+1);printf("Volba: ");
+        t_textcolor(B_GREEN);
+    }
+    t_textcolor(COLOR_DEFAULT);
+    return number;
+}
+

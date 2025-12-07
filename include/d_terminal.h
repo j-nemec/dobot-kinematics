@@ -73,6 +73,7 @@ void t_get_line(char *buffer, size_t size);
 
 /* Čekání na stisk klávesy Enter */
 void t_keypress_wait(buffer_mode);
+int t_get_choice(int y);
 void t_clean_buff(void);
 void t_mouse_enable(void);
 void t_mouse_disable(void);

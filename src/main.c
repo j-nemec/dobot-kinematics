@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
     char c = '\0';
     char banner[130]; // Tohle peklo v pythonu není :D
 
+    
     if (!cli_parse(argc, argv, &opts)) {
         print_help();
         return -1;
@@ -62,15 +63,15 @@ int main(int argc, char *argv[]) {
         d_menu(); // Hlavní nabídka 
         printf("\nVolba: ");
         t_textcolor(B_GREEN);
-        scanf("%d", &volba);
+        volba = t_get_choice(10);
         switch(volba) {
             case 1:
-                t_clrscr();
                 while(volba!=0) {
+                    t_clrscr();
                     d_menu_forward(); // Zobrazení nabídky pro přímou kinematiku
                     printf("\nVolba: ");
                     t_textcolor(B_GREEN);
-                    scanf("%d", &volba);
+                    volba = t_get_choice(9);
                     t_textcolor(B_YELLOW);
                     switch(volba) {
                         case 1:
@@ -78,7 +79,16 @@ int main(int argc, char *argv[]) {
                             d_draw_title_bar("Zadání hodnot J1, J2, J3 a převod na TCP[x, y, z]");
                             printf("\nZadej úhly kloubů: J1, J2, J3: ");
                             t_textcolor(B_GREEN);
-                            scanf("%lf, %lf, %lf", &joints.J1_deg, &joints.J2_deg, &joints.J3_deg);
+                            while(scanf("%lf, %lf, %lf", &joints.J1_deg, &joints.J2_deg, &joints.J3_deg)!=3) {
+                                t_clean_buff();
+                                t_clrscr();
+                                d_draw_title_bar("Zadání hodnot J1, J2, J3 a převod na TCP[x, y, z]");
+                                t_textcolor(RED);
+                                printf("Špatně zadané hodnoty kloubů - opakuji zadávání!");
+                                t_textcolor(WHITE);
+                                printf("\nZadej úhly kloubů: J1, J2, J3: ");
+                                t_textcolor(B_GREEN);
+                            };
                             t_textcolor(B_YELLOW);
                             switch(KForward(&joints, &position))  {
                                 case K_SUCCESS:
@@ -262,7 +272,7 @@ int main(int argc, char *argv[]) {
                     d_menu_inverse(); // Zobrazení nabídky pro inverzní kinematiku
                     printf("\nVolba: ");
                     t_textcolor(B_GREEN);
-                    scanf("%d", &volba);
+                    volba = t_get_choice(9);
                     t_textcolor(B_YELLOW);
                     switch(volba) {
                         case 1:
@@ -270,7 +280,16 @@ int main(int argc, char *argv[]) {
                             d_draw_title_bar("Zadání pozic TCP[x, y, z] a převod na úhly J1, J2, J3");
                             printf("\nZadej pozice TCP x, y, z: ");
                             t_textcolor(B_GREEN);
-                            scanf("%lf, %lf, %lf", &position.x, &position.y, &position.z);
+                            while(scanf("%lf, %lf, %lf", &joints.J1_deg, &joints.J2_deg, &joints.J3_deg)!=3) {
+                                t_clean_buff();
+                                t_clrscr();
+                                d_draw_title_bar("Zadání pozic TCP[x, y, z] a převod na úhly J1, J2, J3");
+                                t_textcolor(RED);
+                                printf("Špatně zadané hodnoty TCP - opakuji zadávání!");
+                                t_textcolor(WHITE);
+                                printf("\nZadej pozice TCP x, y, z: ");
+                                t_textcolor(B_GREEN);
+                            }
                             t_textcolor(B_YELLOW);
                             switch(KInverse(&position, &joints))  {
                                 case K_SUCCESS:
@@ -464,7 +483,6 @@ int main(int argc, char *argv[]) {
         }
     }
     
-
     t_show_cursor();
     t_shutdown();
     return 0;
