@@ -1,3 +1,15 @@
+/*
+ * ======================== ui.c =========================
+ * User Interface
+ * Autor: Josef Němec
+ * Datum: 2025-11-24
+ * 
+ * Popis:
+ * Modul obsahuje funkce pro práci se soubory v rámci aplikace.
+ * - Zápis pozic TCP nebo joint angles do souboru.
+ * - Čtení pozic TCP nebo joint angles ze souboru.
+ */
+
 #include <stdio.h>
 #include "d_io.h"
 #include "kinematics.h"
@@ -5,7 +17,7 @@
 
 IO_Status d_io_save_joints(const char *filename, const JointsDeg *joints) {
     FILE *fw;
-    if(!(fw=fopen(filename, "a"))) {
+    if(!(fw=fopen(filename, "a+"))) { // Otevření pro zápis na konec souboru, v případě, že eneexistuje, bude vytvořen.
         return IO_ERR_OPEN;
     }
     fprintf(fw, "%.6f %.6f %.6f\n", joints->J1_deg, joints->J2_deg, joints->J3_deg);
@@ -15,7 +27,7 @@ IO_Status d_io_save_joints(const char *filename, const JointsDeg *joints) {
 
 IO_Status d_io_save_tcp(const char *filename, const TCP_Position *position) {
     FILE *fw;
-    if(!(fw=fopen(filename, "a"))) {
+    if(!(fw=fopen(filename, "a+"))) {
         return IO_ERR_OPEN;
     }
     fprintf(fw, "%.6f %.6f %.6f\n", position->x, position->y, position->z);

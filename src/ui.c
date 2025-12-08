@@ -1,3 +1,17 @@
+/*
+ * ======================== ui.c =========================
+ * User Interface
+ * Autor: Josef Němec
+ * Datum: 2025-12-2
+ * 
+ * Popis:
+ * Tento modul obsahuje pomocné funkce pro uživatelské rozhraní.
+ *  - Vykreslení titulku (pruhu) s nápisem a popisem aktuální zvolené 
+ * možnosti z nabídky.
+ *  - Zobrazení menu.
+ * 
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <d_terminal.h>
@@ -54,3 +68,4 @@ void d_menu_inverse(void) {
     printf("\t0 - Zpět\n");
     t_reset_color();
 }
+

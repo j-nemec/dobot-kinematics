@@ -1,7 +1,5 @@
 #ifndef D_IO_H
 #define D_IO_H
-
-#include <stdio.h>
 #include "kinematics.h"
 
 typedef enum {

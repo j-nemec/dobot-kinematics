@@ -23,14 +23,17 @@
  */
 
 #include <stdio.h>
-#include <math.h>
-#include <string.h>
 #include <stdlib.h>   /* abs() */
+#include <string.h>
+#include <math.h>
 
 #include "config.h"       /* Ramena L1, L2 v mm, OFFSETY */
+#include "math_utils.h"   /* deg2rad() */
 #include "d_terminal.h"
 #include "d_draw_robot.h"
-#include "math_utils.h"   /* deg2rad() */
+#include "d_terminal.h"
+#include "ui.h"
+#include "d_io.h"
 
 /* ====== Datové struktury canvasu ====== */
 
@@ -379,4 +382,43 @@ void d_print_box(int x, int y, int width, const char *text, t_color color) {
         }
         cx++;
     }
+}
+
+void d_show_dobot(FILE *file, char *banner, JointsDeg *joints, TCP_Position *position, CliOptions *dmod) {
+    if (dmod->mode == MODE_FORWARD) {
+        while(d_io_read_joints(file, joints)!=IO_ERR_FORMAT) {
+            if(KForward(joints, position)==K_SUCCESS) {
+                t_clrscr();
+                d_draw_title_bar(banner);
+                t_textcolor(B_YELLOW);
+                printf("\nTCP: x = %.3f mm, y = %.3f mm, z = %.3f mm\n", position->x, position->y, position->z);
+                printf("Klouby: J1 = %.3f°, J2 = %.3f°, J3 = %.3f°\n", joints->J1_deg, joints->J2_deg, joints->J3_deg);
+                d_canvas_clear();
+                d_print_box(6, DR_CANVAS_H - 2, 13, "Zobrazení XZ", MAGENTA);
+                d_print_box(DR_CANVAS_W - 60, DR_CANVAS_H - 2, 13, "Zobrazení XY", MAGENTA);
+                d_robot_draw_from_joints_xz(10, DR_CANVAS_H - 4, joints);
+                d_robot_draw_from_joints_xy(70, (DR_CANVAS_H / 2), joints);
+                d_canvas_render();
+                t_keypress_wait(NO_CLEAN_BUFF);
+            }
+        }
+    } else if (dmod->mode == MODE_INVERSE) {
+        while(d_io_read_tcp(file, position)!=IO_ERR_FORMAT) {
+            if(KInverse(position, joints)==K_SUCCESS) {
+                t_clrscr();
+                d_draw_title_bar(banner);
+                t_textcolor(B_YELLOW);
+                printf("\nTCP: x = %.3f mm, y = %.3f mm, z = %.3f mm\n", position->x, position->y, position->z);
+                printf("Klouby: J1 = %.3f°, J2 = %.3f°, J3 = %.3f°\n", joints->J1_deg, joints->J2_deg, joints->J3_deg);
+                d_canvas_clear();
+                d_print_box(6, DR_CANVAS_H - 2, 13, "Zobrazení XZ", MAGENTA);
+                d_print_box(DR_CANVAS_W - 60, DR_CANVAS_H - 2, 13, "Zobrazení XY", MAGENTA);
+                d_robot_draw_from_joints_xz(10, DR_CANVAS_H - 4, joints);
+                d_robot_draw_from_joints_xy(70, (DR_CANVAS_H / 2), joints);
+                d_canvas_render();
+                t_keypress_wait(NO_CLEAN_BUFF);
+            }
+        }
+    }
+    t_clrscr();
 }

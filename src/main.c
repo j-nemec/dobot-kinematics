@@ -27,6 +27,7 @@
 #include "cli.h"
 #include "config.h"
 
+
 int main(int argc, char *argv[]) {
     CliOptions opts;
     JointsDeg joints;
@@ -38,24 +39,106 @@ int main(int argc, char *argv[]) {
     char c = '\0';
     char banner[130]; // Tohle peklo v pythonu není :D
 
-    
+    /*
+     *  Obsluha parametrů z command line.
+     *  Po provedení ukončí aplikaci.
+     */
+
     if (!cli_parse(argc, argv, &opts)) {
-        print_help();
+        print_help(argv[0]);
         return -1;
     }
-   
+
+    if (opts.help) {
+        print_help(argv[0]);
+        return 0;
+    }
+
     if (opts.mode != MODE_NONE) {
-        if (opts.mode == MODE_FORWARD) {
-            printf("Přímá\n");
-            printf("file: %s\n", opts.input_file);
-            printf("output: %s\n", opts.output_file);
-        } else { /* MODE_INVERSE */
-            printf("Inverzní\n");
-            printf("file: %s\n", opts.input_file);
-            printf("output: %s\n", opts.output_file);
+        if((fr=fopen(opts.input_file, "r")) == NULL) { // Pokus o otevření souboru pro čtení
+            t_textcolor(RED);
+            printf("Chyba otevření souboru - soubor [%s] nezle otevřít!\n", opts.input_file);
+            t_textcolor(COLOR_DEFAULT);
+            return -1;
         }
+        if((fw = fopen(opts.output_file, "w")) == NULL) { // Pokus o otevření souboru pro zápis
+            t_textcolor(RED);
+            printf("Chyba otevření souboru - soubor [%s] nezle otevřít pro zápis!\n", opts.output_file);
+            t_textcolor(COLOR_DEFAULT);
+            return -1;
+        }
+        if (opts.mode == MODE_FORWARD) {
+            printf("J1, J2, J2\t->\tTCP[x, y, z]\n");
+            printf("[%s]\t->\t[%s]", opts.input_file, opts.output_file);
+            while(d_io_read_joints(fr, &joints)!=IO_ERR_FORMAT) {
+                switch(KForward(&joints, &position)) {
+                    case K_ERR_INVALID_ANGLES:
+                        printf("J1=%.3f°, J2=%.3f°, J3=%.3f°\t->\t", joints.J1_deg, joints.J2_deg, joints.J3_deg);
+                        printf("\tNeplatné úhly! - Nezapsáno.\n");
+                        break;
+                    case K_ERR_UNREACHABLE:
+                        printf("J1=%.3f°, J2=%.3f°, J3=%.3f°\t->\t", joints.J1_deg, joints.J2_deg, joints.J3_deg);
+                        printf("\tNedostupná pozice! - Nezapsáno\n");
+                        break;
+                    case K_ERR_NO_SOLUTION:
+                        printf("J1=%.3f°, J2=%.3f°, J3=%.3f°\t->\t", joints.J1_deg, joints.J2_deg, joints.J3_deg);
+                        printf("\tNemá řešení - Nezapsáno.\n");
+                        break;
+                    case K_SUCCESS:
+                        printf("J1=%7.3f°, J2=%7.3f°, J3=%7.3f°\t->\t", joints.J1_deg, joints.J2_deg, joints.J3_deg);
+                        printf("TCP[%7.3f, %7.3f, %7.3f]\n", position.x, position.y, position.z);
+                        fprintf(fw, "%.3f %.3f %.3f\n", position.x, position.y, position.z);
+                        break;
+                    default:
+                        printf("->\tNeznamý problém! Nezapsáno\n");
+                        break;
+                }
+            } 
+            printf("\nÚhly byly zkontrolovány a převedeny na souřadnice TCP.\n");
+        } else { /* MODE_INVERSE */
+            printf("TCP[x, y, z]\t->\tJ1, J2, J2\n");
+            printf("[%s]\t->\t[%s]\n", opts.input_file, opts.output_file);
+            while(d_io_read_tcp(fr, &position)!=IO_ERR_FORMAT) {
+                switch(KInverse(&position, &joints)) {
+                    case K_SUCCESS:
+                        printf("TCP[%7.3f, %7.3f, %7.3f]\t->\t", position.x, position.y, position.z);
+                        printf("J1=%7.3f°, J2=%7.3f°, J3=%7.3f°\n", joints.J1_deg, joints.J2_deg, joints.J3_deg);
+                        fprintf(fw, "%.3f %.3f %.3f\n", joints.J1_deg, joints.J2_deg, joints.J3_deg);
+                        break;
+                    case K_ERR_INVALID_ANGLES:
+                        printf("TCP[%7.3f, %7.3f, %7.3f]\t->\t", position.x, position.y, position.z);
+                        printf("\tNeplatne uhly! - nezapsáno\n");
+                        break;
+                    case K_ERR_UNREACHABLE:
+                        printf("TCP[%7.3f, %7.3f, %7.3f]\t->\t", position.x, position.y, position.z);
+                        printf("\tNedostupna pozice!\n");
+                        break;
+                    case K_ERR_NO_SOLUTION:
+                        printf("TCP[%7.3f, %7.3f, %7.3f]\t->\t", position.x, position.y, position.z);
+                        printf("\tNeni reseni!\n");
+                        break;
+                    default:
+                        printf("TCP[%7.3f, %7.3f, %7.3f]\t->\t", position.x, position.y, position.z);
+                        printf("\tNeznámý problem!\n");
+                        break;
+                }
+            }
+            printf("\nPozice TCP byly zkontrolovány a převedeny na úhly kloubů.\n");   
+        }
+        if(opts.ascii_visual){
+            t_clrscr();
+            rewind(fr); /* Zapomeneš-li na tento krásný přesun na začátek souboru, zabiješ pár hodin laděním a dozajista zešedivíš... */
+            snprintf(banner, sizeof(banner), "DOBOT MAGICIAN - ASCII vizualizace s krokováním ze souboru %s", opts.input_file);
+            d_show_dobot(fr, banner, &joints, &position, &opts);
+        }
+        fclose(fw);
+        fclose(fr);
         return 0;
     } 
+
+    /*
+     *  Interaktivní režim - textové GUI :)
+     */
 
     d_ui_init();
     
@@ -371,7 +454,7 @@ int main(int argc, char *argv[]) {
                                     t_clrscr();
                                     break;
                             }
-                            int i=2;
+                            int n_line = 2;
                             while(d_io_read_tcp(fr, &position)!=IO_ERR_FORMAT) {
                                 switch(KInverse(&position, &joints)) {
                                     case K_ERR_INVALID_ANGLES:
@@ -401,9 +484,9 @@ int main(int argc, char *argv[]) {
                                         printf("->\tNeznamý problém!\n");
                                         break;
                                 }
-                                i++;
-                                if (i==22) { // omezení počtu vypsaných řádků soboru 
-                                    i = 0;
+                                n_line++;
+                                if (n_line == 22) { // omezení počtu vypsaných řádků soboru 
+                                    n_line = 0;
                                     t_gotoxy(1, 30);
                                     t_textcolor(B_YELLOW);
                                     t_keypress_wait(CLEAN_BUFF);

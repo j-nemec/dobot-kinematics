@@ -12,10 +12,11 @@ typedef struct {
     const char *input_file; /* z -f nebo -i */
     const char *output_file;/* z -o, default "results.dat" */
     int ascii_visual;       /* 0/1 podle -a */
+    int help;
 } CliOptions;
 
 void cli_options_init(CliOptions *opts);
 int cli_parse(int argc, char **argv, CliOptions *opts);
-void print_help(void);
+void print_help(char *app_name);
 
 #endif /* CLI_H */  

@@ -1,8 +1,8 @@
 /* d_draw_robot.h */
 #ifndef D_DRAW_ROBOT_H
 #define D_DRAW_ROBOT_H
-#include "d_terminal.h"
-#include "kinematics.h"  /* kvůli JointsDeg */
+#include "kinematics.h"
+#include "cli.h"
 
 /* Rozměry plátna (v pixelech/znacích) */
 #define DR_CANVAS_W 130
@@ -50,6 +50,9 @@ void d_robot_draw_from_joints_xz_default(const JointsDeg *joints);
 /* vykreslí robota podle J1/J2/J3 - pohled shora x, y */
 void d_robot_draw_from_joints_xy(int base_x, int base_y, const JointsDeg *joints);
 void d_robot_draw_from_joints_xy_default(const JointsDeg *joints);
+
+/* CLI - Finalboss - vykreslení dobota - data ze souboru, mód forward / inversní kinematika */
+void d_show_dobot(FILE *file, char *banner, JointsDeg *joints, TCP_Position *position, CliOptions *dmod);
 
 /*  d_print a d_print_box pro výpis textu na plátno */
 void d_print(int x, int y, const char *text, t_color color); 
