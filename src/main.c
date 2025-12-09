@@ -37,39 +37,39 @@ int main(int argc, char *argv[]) {
 
     int volba = -1;
     char c = '\0';
-    char banner[130]; // Tohle peklo v pythonu není :D
+    char banner[130];
 
     /*
      *  Obsluha parametrů z command line.
      *  Po provedení ukončí aplikaci.
      */
 
-    if (!cli_parse(argc, argv, &opts)) {
+    if(!cli_parse(argc, argv, &opts)) {
         print_help(argv[0]);
-        return -1;
+        return PARAM_ERROR;
     }
 
-    if (opts.help) {
+    if(opts.help) {
         print_help(argv[0]);
-        return 0;
+        return PARAM_OK;
     }
 
-    if (opts.mode != MODE_NONE) {
+    if(opts.mode != MODE_NONE) {
         if((fr=fopen(opts.input_file, "r")) == NULL) { // Pokus o otevření souboru pro čtení
             t_textcolor(RED);
             printf("Chyba otevření souboru - soubor [%s] nezle otevřít!\n", opts.input_file);
             t_textcolor(COLOR_DEFAULT);
-            return -1;
+            return PARAM_ERROR;
         }
         if((fw = fopen(opts.output_file, "w")) == NULL) { // Pokus o otevření souboru pro zápis
             t_textcolor(RED);
             printf("Chyba otevření souboru - soubor [%s] nezle otevřít pro zápis!\n", opts.output_file);
             t_textcolor(COLOR_DEFAULT);
-            return -1;
+            return PARAM_ERROR;
         }
-        if (opts.mode == MODE_FORWARD) {
+        if(opts.mode == MODE_FORWARD) {
             printf("J1, J2, J2\t->\tTCP[x, y, z]\n");
-            printf("[%s]\t->\t[%s]", opts.input_file, opts.output_file);
+            printf("[%s]\t->\t[%s]\n", opts.input_file, opts.output_file);
             while(d_io_read_joints(fr, &joints)!=IO_ERR_FORMAT) {
                 switch(KForward(&joints, &position)) {
                     case K_ERR_INVALID_ANGLES:
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
         }
         fclose(fw);
         fclose(fr);
-        return 0;
+        return PARAM_OK;
     } 
 
     /*
@@ -253,7 +253,7 @@ int main(int argc, char *argv[]) {
                                     t_clrscr();
                                     break;
                             }
-                            int i=2;
+                            int n_line = 2;
                             while(d_io_read_joints(fr, &joints)!=IO_ERR_FORMAT) {
                                 switch(KForward(&joints, &position)) {
                                     case K_ERR_INVALID_ANGLES:
@@ -285,9 +285,9 @@ int main(int argc, char *argv[]) {
                                         t_textcolor(B_GREEN);
                                         break;
                                 }
-                                i++;
-                                if (i==22) { // omezení počtu vypsaných řádků soboru 
-                                    i = 0;
+                                n_line++;
+                                if (n_line==22) { // omezení počtu vypsaných řádků soboru 
+                                    n_line = 0;
                                     t_gotoxy(1, 30);
                                     t_textcolor(B_YELLOW);
                                     t_keypress_wait(CLEAN_BUFF);
@@ -363,7 +363,7 @@ int main(int argc, char *argv[]) {
                             d_draw_title_bar("Zadání pozic TCP[x, y, z] a převod na úhly J1, J2, J3");
                             printf("\nZadej pozice TCP x, y, z: ");
                             t_textcolor(B_GREEN);
-                            while(scanf("%lf, %lf, %lf", &joints.J1_deg, &joints.J2_deg, &joints.J3_deg)!=3) {
+                            while(scanf("%lf, %lf, %lf", &position.x, &position.y, &position.z)!=3) {
                                 t_clean_buff();
                                 t_clrscr();
                                 d_draw_title_bar("Zadání pozic TCP[x, y, z] a převod na úhly J1, J2, J3");
@@ -568,5 +568,5 @@ int main(int argc, char *argv[]) {
     
     t_show_cursor();
     t_shutdown();
-    return 0;
+    return APP_DONE;
 }

@@ -15,6 +15,12 @@ typedef struct {
     int help;
 } CliOptions;
 
+typedef enum {
+    PARAM_ERROR = -1,
+    PARAM_OK = 1,
+    APP_DONE = 0
+} AppExitCode;
+
 void cli_options_init(CliOptions *opts);
 int cli_parse(int argc, char **argv, CliOptions *opts);
 void print_help(char *app_name);
