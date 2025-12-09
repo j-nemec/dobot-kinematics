@@ -28,10 +28,12 @@ Kompilace MacOS, Linux:
     - potřeba mít nainstalován gcc a make
     - $ make
 
-Kompilace Windows (komplikace :D):
+Kompilace Windows (komplikace):
 - doporučuji: stáhnout balíček pro distribuci a building aplikací: https://www.msys2.org
 - $ pacman -S mingw-w64-x86_64-gcc
 - $ pacman -S make
+
+- Pro správné zobrazení diakritiky v cmd zadej: chcp 65001
 
 Spouštění:
     $ ./build/dobot_kin
