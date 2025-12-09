@@ -172,6 +172,9 @@ int main(int argc, char *argv[]) {
                                 printf("\nZadej úhly kloubů: J1, J2, J3: ");
                                 t_textcolor(B_GREEN);
                             };
+                            for(int i=1; i<=SCREEN_W; i++) {
+                                t_gotoxy(i, 2); putchar(' '); // mazání řádku s chybou
+                            }
                             t_textcolor(B_YELLOW);
                             switch(KForward(&joints, &position))  {
                                 case K_SUCCESS:
@@ -373,11 +376,14 @@ int main(int argc, char *argv[]) {
                                 printf("\nZadej pozice TCP x, y, z: ");
                                 t_textcolor(B_GREEN);
                             }
+                            for(int i=1; i<=SCREEN_W; i++) {
+                                t_gotoxy(i, 2); putchar(' '); // mazání řádku s chybou
+                            }
                             t_textcolor(B_YELLOW);
                             switch(KInverse(&position, &joints))  {
                                 case K_SUCCESS:
                                     t_gotoxy(1, 5);
-                                    printf("Inverzní kinematika - \x1b[32mOK\x1b[0m\n"); // \x1b[32mToto je zelený text\x1b[0m\n
+                                    printf("Inverzní kinematika - \x1b[32mOK\x1b[0m\n");
                                     printf("\tJ1 = %.2f\n", joints.J1_deg);
                                     printf("\tJ2 = %.2f\n", joints.J2_deg);
                                     printf("\tJ3 = %.2f\n", joints.J3_deg);
