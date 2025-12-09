@@ -12,9 +12,9 @@ Program umí následující věci:
 - Jednoduché CLI pro automatizaci bez nutnosti interakce - hodí se pro validaci dat v souboru
 
 Struktura projektu:
-/src/       - zdrojové kódy aplikace
-/include/   - hlavičkové soubory
-/build/     - výstup kompiace (výsledná aplikace pro spuštění)
+- /src/       - zdrojové kódy aplikace
+- /include/   - hlavičkové soubory
+- /build/     - výstup kompiace (výsledná aplikace pro spuštění)
 
 Program pracuje se soubory:
 - joints.dat: Soubor s úhly kloubů J1 J2 J3
@@ -26,7 +26,7 @@ Konfigurace parametrů robota a defaultních názvů souborů je uložena v hlav
 
 Kompilace MacOS, Linux:
     - potřeba mít nainstalován gcc a make
-    $ make
+    - $ make
 
 Kompilace Windows (komplikace :D):
 - doporučuji: stáhnout balíček pro distribuci a building aplikací: https://www.msys2.org
