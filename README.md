@@ -37,8 +37,8 @@ Spouštění:
     $ ./build/dobot_kin
 
 Parametry CMD:
-    $ ./build/dobot_kin -h                           Nápověda k aplikaci
-    $ ./build/dobot_kin -f joints.dat -o out.dat     Převod úhlů J1, J2, J3 ze souboru joints.dat na pozice x, y, z do souboru out.dat
-    $ ./build/dobot_kin -i positions.dat -o out.dat  Převod pozic TCP ze souboru positions.dat na úhly J1, J2, J3 do souboru out.dat
-    $ ./build/dobot_kin -f joints.dat -a             Zobrazení vizualizace ASCII robota s krokováním dat ze souboru joints.dat
+    - $ ./build/dobot_kin -h                           Nápověda k aplikaci
+    - $ ./build/dobot_kin -f joints.dat -o out.dat     Převod úhlů J1, J2, J3 ze souboru joints.dat na pozice x, y, z do souboru out.dat
+    - $ ./build/dobot_kin -i positions.dat -o out.dat  Převod pozic TCP ze souboru positions.dat na úhly J1, J2, J3 do souboru out.dat
+    - $ ./build/dobot_kin -f joints.dat -a             Zobrazení vizualizace ASCII robota s krokováním dat ze souboru joints.dat
 
