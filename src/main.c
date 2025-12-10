@@ -175,6 +175,7 @@ int main(int argc, char *argv[]) {
                             for(int i=1; i<=SCREEN_W; i++) {
                                 t_gotoxy(i, 2); putchar(' '); // mazání řádku s chybou
                             }
+                            t_textcolor(COLOR_DEFAULT);
                             t_textcolor(B_YELLOW);
                             switch(KForward(&joints, &position))  {
                                 case K_SUCCESS:
@@ -183,17 +184,31 @@ int main(int argc, char *argv[]) {
                                     printf("\tx = %.2f\n", position.x);
                                     printf("\ty = %.2f\n", position.y);
                                     printf("\tz = %.2f\n", position.z);
+                                    
+                                    t_clean_buff();
+                                    printf("\nUložit do souboru(zpět)? (A/N): ");
+                            
+                                    c = getchar();
+                                    switch(TO_UPPER(c)) {
+                                        case 'A':
+                                            if(d_io_save_tcp(F_POSITIONS, &position)==IO_ERR_OPEN) {
+                                                t_gotoxy((SCREEN_W/2) - 6, SCREEN_H/2);
+                                                t_textcolor(RED);
+                                                printf("Soubor neexistuje nebo nelze otevřít pro zápis!\n");
+                                                t_textcolor(B_GREEN);
+                                                break;
+                                            }
+                                        case 'N':
+                                            break;
+                                        default:
+                                            break;    
+                                    }
+                                    
                                     break;
                                 case K_ERR_INVALID_ANGLES:
                                     t_textcolor(RED);
                                     t_gotoxy((SCREEN_W/2) - 7, SCREEN_H/2);
                                     printf("Neplatne uhly!\n");
-                                    t_textcolor(B_GREEN);
-                                    break;
-                                case K_ERR_UNREACHABLE:
-                                    t_textcolor(RED);
-                                    t_gotoxy((SCREEN_W/2) - 9, SCREEN_H/2);
-                                    printf("Nedostupna pozice!\n");
                                     t_textcolor(B_GREEN);
                                     break;
                                 case K_ERR_NO_SOLUTION:
@@ -209,25 +224,7 @@ int main(int argc, char *argv[]) {
                                     t_textcolor(B_GREEN);
                                     break;
                             }
-                            t_clean_buff();
-                            printf("\nUložit do souboru(zpět)? (A/N): ");
-                            
-                            c = getchar();
-                            switch(TO_UPPER(c)) {
-                                case 'A':
-                                    if(d_io_save_tcp(F_POSITIONS, &position)==IO_ERR_OPEN) {
-                                        t_gotoxy((SCREEN_W/2) - 6, SCREEN_H/2);
-                                        t_textcolor(RED);
-                                        printf("Soubor neexistuje nebo nelze otevřít pro zápis!\n");
-                                        t_textcolor(B_GREEN);
-                                        break;
-                                    }
-                                    t_keypress_wait(CLEAN_BUFF);
-                                case 'N':
-                                    break;
-                                default:
-                                    break;
-                            }
+                            t_keypress_wait(CLEAN_BUFF);
                             t_clrscr();
                             break;
                         case 2:
@@ -263,12 +260,6 @@ int main(int argc, char *argv[]) {
                                         printf("\tJ1=%.3f°, J2=%.3f°, J3=%.3f°\t->\t", joints.J1_deg, joints.J2_deg, joints.J3_deg);
                                         t_textcolor(RED);
                                         printf("Neplatné úhly!\n");
-                                        t_textcolor(B_GREEN);
-                                        break;
-                                    case K_ERR_UNREACHABLE:
-                                        printf("\tJ1=%.3f°, J2=%.3f°, J3=%.3f°\t->\t", joints.J1_deg, joints.J2_deg, joints.J3_deg);
-                                        t_textcolor(RED);
-                                        printf("Nedostupná pozice!\n");
                                         t_textcolor(B_GREEN);
                                         break;
                                     case K_ERR_NO_SOLUTION:
@@ -376,6 +367,7 @@ int main(int argc, char *argv[]) {
                                 printf("\nZadej pozice TCP x, y, z: ");
                                 t_textcolor(B_GREEN);
                             }
+                            t_textcolor(COLOR_DEFAULT);
                             for(int i=1; i<=SCREEN_W; i++) {
                                 t_gotoxy(i, 2); putchar(' '); // mazání řádku s chybou
                             }
@@ -387,23 +379,36 @@ int main(int argc, char *argv[]) {
                                     printf("\tJ1 = %.2f\n", joints.J1_deg);
                                     printf("\tJ2 = %.2f\n", joints.J2_deg);
                                     printf("\tJ3 = %.2f\n", joints.J3_deg);
-                                    break;
-                                case K_ERR_INVALID_ANGLES:
-                                    t_textcolor(RED);
-                                    t_gotoxy((SCREEN_W/2) - 7, SCREEN_H/2);
-                                    printf("Neplatne uhly!\n");
-                                    t_textcolor(B_GREEN);
+
+                                    t_clean_buff();
+                                    printf("\nUložit do souboru(zpět)? (A/N): ");
+                            
+                                    c = getchar();
+                                    switch(TO_UPPER(c)) {
+                                        case 'A':
+                                            if(d_io_save_tcp(F_POSITIONS, &position)==IO_ERR_OPEN) {
+                                                t_gotoxy((SCREEN_W/2) - 6, SCREEN_H/2);
+                                                t_textcolor(RED);
+                                                printf("Soubor neexistuje nebo nelze otevřít pro zápis!\n");
+                                                t_textcolor(B_GREEN);
+                                                break;
+                                            }
+                                        case 'N':
+                                            break;
+                                        default:
+                                            break;    
+                                    }
                                     break;
                                 case K_ERR_UNREACHABLE:
                                     t_textcolor(RED);
                                     t_gotoxy((SCREEN_W/2) - 9, SCREEN_H/2);
-                                    printf("Nedostupna pozice!\n");
+                                    printf("Nedostupná pozice!\n");
                                     t_textcolor(B_GREEN);
                                     break;
                                 case K_ERR_NO_SOLUTION:
                                     t_textcolor(RED);
                                     t_gotoxy((SCREEN_W/2) - 6, SCREEN_H/2);
-                                    printf("Neni reseni!\n");
+                                    printf("Není řešení!\n");
                                     t_textcolor(B_GREEN);
                                     break;
                                 default:
@@ -413,25 +418,8 @@ int main(int argc, char *argv[]) {
                                     t_textcolor(B_GREEN);
                                     break;
                             }
-                            t_clean_buff();
-                            printf("\nUložit do souboru(zpět)? (A/N): ");
                             
-                            c = getchar();
-                            switch(TO_UPPER(c)) {
-                                case 'A':
-                                    if(d_io_save_joints(F_JOINTS, &joints)==IO_ERR_OPEN) {
-                                        t_gotoxy((SCREEN_W/2) - 6, SCREEN_H/2);
-                                        t_textcolor(RED);
-                                        printf("Soubor neexistuje nebo nelze otevřít pro zápis!\n");
-                                        t_textcolor(B_YELLOW);
-                                        break;
-                                    }
-                                    t_keypress_wait(CLEAN_BUFF);
-                                case 'N':
-                                    break;
-                                default:
-                                    break;
-                            }
+                            t_keypress_wait(CLEAN_BUFF);
                             t_clrscr();
                             break;
                         case 2:
@@ -463,12 +451,6 @@ int main(int argc, char *argv[]) {
                             int n_line = 2;
                             while(d_io_read_tcp(fr, &position)!=IO_ERR_FORMAT) {
                                 switch(KInverse(&position, &joints)) {
-                                    case K_ERR_INVALID_ANGLES:
-                                        printf("\tTCP[%7.3f, %7.3f, %7.3f]\t->\t", position.x, position.y, position.z);
-                                        t_textcolor(RED);
-                                        printf("Neplatné úhly!\n");
-                                        t_textcolor(B_GREEN);
-                                        break;
                                     case K_ERR_UNREACHABLE:
                                         printf("\tTCP[%7.3f, %7.3f, %7.3f]\t->\t", position.x, position.y, position.z);
                                         t_textcolor(RED);

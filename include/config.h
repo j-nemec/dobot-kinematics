@@ -41,10 +41,5 @@
 
 #define REACH_MAX_MM ( (L1)+(L2) )
 
-/* Pracovní prostor specifikovaný dokumentací robota 2D */
-#define WORKSPACE_X_MIN_MM  10.0     /* mm */
-#define WORKSPACE_X_MAX_MM  328.5   /* mm */
-#define WORKSPACE_Z_MIN_MM  -146.4     /* mm */
-#define WORKSPACE_Z_MAX_MM  172.5   /* mm */
 
 #endif /* CONFIG_H */

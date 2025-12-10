@@ -35,10 +35,6 @@ KinematicsStatus CheckAngles(JointsDeg *joints) { // Test zda jsou úhly v platn
 }
 
 KinematicsStatus KInverse(TCP_Position *position, JointsDeg *joints) { // Inverzní kinematika: Spočítá úhly kloubů z pozice TCP
-    /* if(position->x < 0 || position->y < 0 || position->z < 0) {
-        return K_ERR_UNREACHABLE; // Unreachable position
-    } */
-
     /*
         Přístup k výpočtu inverzní kinematiky:
         1. Vypočítat vzdálenost c od základny k TCP
@@ -47,8 +43,15 @@ KinematicsStatus KInverse(TCP_Position *position, JointsDeg *joints) { // Inverz
         4. Spočítat J2 a J3 z těchto úhlů a převést na stupně
         Problém je v počítání úhlů Dobota - je potřeba uvažovat, že v případě J2 = 0° je rameno svisle nahoru a ne vodorovně.
         Stejný problém je u j3 = 0°, kdy je rameno natažené vodorovně.
+
+        Validace je prováděna až po výpočtu jednotlivých úhlů - ukázalo se, že je to z principu nejlepší řešení,
+        protože rozsahy úhlů jsou jasně definovány v dokumentaci robota a navíc jsem provedl korekci s reálným robotem.
     */
+
+    if(position->x >= REACH_MAX_MM) return K_ERR_UNREACHABLE;
+
     double dynamic_x;
+
     if(position->y == 0) { 
         dynamic_x = position->x - EFFECTOR_OFFSET_X;
     } else {
@@ -64,7 +67,14 @@ KinematicsStatus KInverse(TCP_Position *position, JointsDeg *joints) { // Inverz
     // Rameno L2 úhel J3 = 0° je vodorovně
     joints->J1_deg = rad2deg(asin(position->y / dynamic_x));
 
-    return K_SUCCESS; // Success 
+    switch(CheckAngles(joints)) {
+        case K_SUCCESS: 
+            return K_SUCCESS; 
+        case K_ERR_INVALID_ANGLES:
+            return K_ERR_UNREACHABLE;
+        default:
+           return K_ERR_NO_SOLUTION;
+    }
 }
 
 // Forward kinematika: Spočítá pozici TCP z úhlů kloubů
@@ -87,6 +97,6 @@ KinematicsStatus KForward(JointsDeg *joints, TCP_Position *position) {
        case K_ERR_INVALID_ANGLES:
            return K_ERR_INVALID_ANGLES; // Špatné úhly
        default:
-           return K_ERR_UNREACHABLE; // Nedosažitelná pozice
+           return K_ERR_NO_SOLUTION; // Nedosažitelná pozice
    } 
 }
