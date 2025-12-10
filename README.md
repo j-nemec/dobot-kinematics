@@ -12,9 +12,9 @@ Program umí následující věci:
 - Jednoduché CLI pro automatizaci bez nutnosti interakce - hodí se pro validaci dat v souboru
 
 Struktura projektu:
-/src/       - zdrojové kódy aplikace
-/include/   - hlavičkové soubory
-/build/     - výstup kompiace (výsledná aplikace pro spuštění)
+- /src/       - zdrojové kódy aplikace
+- /include/   - hlavičkové soubory
+- /build/     - výstup kompiace (výsledná aplikace pro spuštění)
 
 Program pracuje se soubory:
 - joints.dat: Soubor s úhly kloubů J1 J2 J3
@@ -26,19 +26,21 @@ Konfigurace parametrů robota a defaultních názvů souborů je uložena v hlav
 
 Kompilace MacOS, Linux:
     - potřeba mít nainstalován gcc a make
-    $ make
+    - $ make
 
-Kompilace Windows (komplikace :D):
-    - doporučuji: stáhnout balíček pro distribuci a building aplikací: https://www.msys2.org
-    $ pacman -S mingw-w64-x86_64-gcc
-    $ pacman -S make
+Kompilace Windows (komplikace):
+- doporučuji: stáhnout balíček pro distribuci a building aplikací: https://www.msys2.org
+- $ pacman -S mingw-w64-x86_64-gcc
+- $ pacman -S make
+
+- Pro správné zobrazení diakritiky v cmd zadej: chcp 65001
 
 Spouštění:
     $ ./build/dobot_kin
 
 Parametry CMD:
-    $ ./build/dobot_kin -h                           Nápověda k aplikaci
-    $ ./build/dobot_kin -f joints.dat -o out.dat     Převod úhlů J1, J2, J3 ze souboru joints.dat na pozice x, y, z do souboru out.dat
-    $ ./build/dobot_kin -i positions.dat -o out.dat  Převod pozic TCP ze souboru positions.dat na úhly J1, J2, J3 do souboru out.dat
-    $ ./build/dobot_kin -f joints.dat -a             Zobrazení vizualizace ASCII robota s krokováním dat ze souboru joints.dat
+- $ ./build/dobot_kin -h                           Nápověda k aplikaci
+- $ ./build/dobot_kin -f joints.dat -o out.dat     Převod úhlů J1, J2, J3 ze souboru joints.dat na pozice x, y, z do souboru out.dat
+- $ ./build/dobot_kin -i positions.dat -o out.dat  Převod pozic TCP ze souboru positions.dat na úhly J1, J2, J3 do souboru out.dat
+- $ ./build/dobot_kin -f joints.dat -a             Zobrazení vizualizace ASCII robota s krokováním dat ze souboru joints.dat
 
